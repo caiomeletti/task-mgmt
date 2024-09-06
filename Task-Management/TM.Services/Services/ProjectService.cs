@@ -31,10 +31,28 @@ namespace TM.Services.Services
 
         public async Task<IEnumerable<ProjectDTO>> GetProjectAsync()
         {
-            var allProjects = await _projectRepository.GetProjectAsync();
-            var allProjectsDTO = _mapper.Map<IEnumerable<ProjectDTO>>(allProjects);
+            return await GetProjectAsync(-1, -1);
+        }
 
-            return allProjectsDTO;
+        public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId)
+        {
+            var project = await _projectRepository.GetProjectAsync(projectId);
+            return project != null
+                ? _mapper.Map<ProjectDTO>(project)
+                : null;
+        }
+
+        public async Task<IEnumerable<ProjectDTO>> GetProjectByUserIdAsync(int userId)
+        {
+            return await GetProjectAsync(-1, userId);
+        }
+
+        public async Task<IEnumerable<ProjectDTO>> GetProjectAsync(int projectId, int userId)
+        {
+            var projects = await _projectRepository.GetProjectAsync(projectId, userId);
+            var projectsDTO = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
+
+            return projectsDTO;
         }
     }
 }

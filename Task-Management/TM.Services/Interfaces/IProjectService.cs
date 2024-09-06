@@ -1,5 +1,4 @@
-﻿
-using TM.Services.DTO;
+﻿using TM.Services.DTO;
 
 namespace TM.Services.Interfaces
 {
@@ -7,5 +6,8 @@ namespace TM.Services.Interfaces
     {
         Task<ProjectDTO> CreateProjectAsync(ProjectDTO projectDTO);
         Task<IEnumerable<ProjectDTO>> GetProjectAsync();
+        Task<ProjectDTO?> GetProjectByIdAsync(int projectId);
+        Task<IEnumerable<ProjectDTO>> GetProjectAsync(int projectId, int userId);
+        Task<IEnumerable<ProjectDTO>> GetProjectByUserIdAsync(int userId);
     }
 }
