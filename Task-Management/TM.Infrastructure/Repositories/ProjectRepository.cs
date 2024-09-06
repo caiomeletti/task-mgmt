@@ -21,6 +21,7 @@ namespace TM.Infrastructure.Repositories
                 "   ,p.Description " +
                 "   ,p.UpdateAt " +
                 "   ,p.UserId " +
+                "   ,p.Enabled " +
                 "FROM project p " +
                 "WHERE p.Enabled = 1 ";
         }

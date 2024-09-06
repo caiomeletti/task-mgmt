@@ -11,12 +11,16 @@
         public int ProjectId { get; set; }
         public DateTime UpdateAt { get; set; }
         public int UserId { get; set; }
+        public bool Enabled { get; set; }
 
         public ContextTask()
         {
             Title = string.Empty;
             Description = string.Empty;
+            Priority = 0;
+            Status = 0;
             UpdateAt = DateTime.Now;
+            Enabled = true;
         }
     }
 }

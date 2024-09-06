@@ -11,6 +11,7 @@
         public int ContextTaskId { get; set; }
         public DateTime UpdateAt { get; set; }
         public int UserId { get; set; }
+        public bool Enabled { get; set; }
 
         public HistoricalTask()
         {
@@ -19,6 +20,7 @@
             Priority = 0;
             Status = 0;
             UpdateAt = DateTime.Now;
+            Enabled = true;
         }
     }
 }

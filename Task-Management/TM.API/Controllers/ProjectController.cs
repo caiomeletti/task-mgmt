@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TM.API.ViewModels;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
+using TM.Services.Services;
 
 namespace TM.API.Controllers
 {
@@ -16,18 +17,22 @@ namespace TM.API.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IProjectService _projectService;
+        private readonly IContextTaskService _contextTaskService;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="mapper"></param>
         /// <param name="projectService"></param>
+        /// <param name="contextTaskService"></param>
         public ProjectController(
             IMapper mapper,
-            IProjectService projectService)
+            IProjectService projectService,
+            IContextTaskService contextTaskService)
         {
             _mapper = mapper;
             _projectService = projectService;
+            _contextTaskService = contextTaskService;
         }
 
         /// <summary>
@@ -123,6 +128,25 @@ namespace TM.API.Controllers
             var result = await _projectService.DisableProjectByIdAsync(projectId: id);
             return result == 0
                 ? Accepted()
+                : NotFound();
+        }
+
+        /// <summary>
+        /// Exibir lista de tarefas de um projeto
+        /// </summary>
+        /// <param name="id">Id do usuário</param>
+        /// <returns></returns>
+        /// <response code="200">Quando existir tarefas associadas ao projeto</response>
+        /// <response code="404">Quando não existir tarefas associadas ao projeto</response>
+        [HttpGet]
+        [Route("{id}/tasks")]
+        [ProducesResponseType(typeof(IEnumerable<ContextTaskDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTasksAsync([FromRoute] int id)
+        {
+            var result = await _contextTaskService.GetContextTaskAsync(projectId: id);
+            return result != null
+                ? Ok(result)
                 : NotFound();
         }
     }

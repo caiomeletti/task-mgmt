@@ -15,8 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<IDbServiceRepository, DbServiceRepository>();
-builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IContextTaskRepository, ContextTaskRepository>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IContextTaskService, ContextTaskService>();
 
 builder.Services.AddControllers();
 
@@ -46,6 +48,8 @@ var config = new MapperConfiguration(cfg =>
 {
     cfg.CreateMap<Project, ProjectDTO>().ReverseMap();
     cfg.CreateMap<CreateProjectViewModel, ProjectDTO>();
+    cfg.CreateMap<ContextTask, ContextTaskDTO>().ReverseMap();
+    cfg.CreateMap<CreateContextTaskViewModel, ContextTaskDTO>();
 });
 IMapper mapper = config.CreateMapper();
 #endregion

@@ -7,13 +7,16 @@
         public string Description { get; set; }
         public DateTime UpdateAt { get; set; }
         public int UserId { get; set; }
+        public bool Enabled { get; set; }
 
+        public virtual IEnumerable<ContextTask>? ContextTasks { get; set; }
 
         public Project()
         {
             Title = string.Empty;
             Description = string.Empty;
             UpdateAt = DateTime.Now;
+            Enabled = true;
         }
     }
 }
