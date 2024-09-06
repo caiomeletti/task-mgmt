@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TM.Infrastructure", "TM.Inf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TM.Domain", "TM.Domain\TM.Domain.csproj", "{E5385D28-EB16-4627-967D-A94624AC8547}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TM.UnitTest", "TM.UnitTest\TM.UnitTest.csproj", "{39E5F6CF-398C-41B5-90A2-FFB90767BC38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TM.UnitTest", "TM.UnitTest\TM.UnitTest.csproj", "{39E5F6CF-398C-41B5-90A2-FFB90767BC38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TM.Services", "TM.Services\TM.Services.csproj", "{EBE45C4B-CECD-4653-9AC3-2EBFBA2815EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TM.Services", "TM.Services\TM.Services.csproj", "{EBE45C4B-CECD-4653-9AC3-2EBFBA2815EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TM.Core", "TM.Core\TM.Core.csproj", "{3A483219-D699-4231-B5D3-DD73ABA5FF89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{EBE45C4B-CECD-4653-9AC3-2EBFBA2815EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBE45C4B-CECD-4653-9AC3-2EBFBA2815EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBE45C4B-CECD-4653-9AC3-2EBFBA2815EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A483219-D699-4231-B5D3-DD73ABA5FF89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A483219-D699-4231-B5D3-DD73ABA5FF89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A483219-D699-4231-B5D3-DD73ABA5FF89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A483219-D699-4231-B5D3-DD73ABA5FF89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

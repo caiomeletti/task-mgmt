@@ -5,8 +5,9 @@ namespace TM.Infrastructure.Interfaces
 {
     public interface IProjectRepository
     {
-        Task<Project> CreateProjectAsync(Project project);
-        Task<Project?> GetProjectAsync(int projectId);
-        Task<IEnumerable<Project>?> GetProjectAsync(int userId, int userId1);
+        Task<Project> CreateAsync(Project project);
+        Task<bool> DisableAsync(int projectId);
+        Task<Project?> GetAsync(int projectId);
+        Task<IEnumerable<Project>?> GetAsync(int projectId, int userId);
     }
 }

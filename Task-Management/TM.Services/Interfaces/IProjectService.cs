@@ -9,5 +9,6 @@ namespace TM.Services.Interfaces
         Task<ProjectDTO?> GetProjectByIdAsync(int projectId);
         Task<IEnumerable<ProjectDTO>> GetProjectAsync(int projectId, int userId);
         Task<IEnumerable<ProjectDTO>> GetProjectByUserIdAsync(int userId);
+        Task<byte> DisableProjectByIdAsync(int projectId);
     }
 }

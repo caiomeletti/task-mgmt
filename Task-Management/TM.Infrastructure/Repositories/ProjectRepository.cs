@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Mysqlx.Crud;
 using System.Text;
 using TM.Domain.Entities;
 using TM.Infrastructure.Interfaces;
@@ -9,21 +8,31 @@ namespace TM.Infrastructure.Repositories
     public class ProjectRepository : IProjectRepository
     {
         private readonly IDbServiceRepository _dbService;
+        private string _baseSelect;
 
         public ProjectRepository(
             IDbServiceRepository dbService)
         {
             _dbService = dbService;
+            _baseSelect =
+                @"SELECT " +
+                "    p.Id " +
+                "   ,p.Title " +
+                "   ,p.Description " +
+                "   ,p.UpdateAt " +
+                "   ,p.UserId " +
+                "FROM project p " +
+                "WHERE p.Enabled = 1 ";
         }
 
-        public async Task<Project> CreateProjectAsync(Project project)
+        public async Task<Project> CreateAsync(Project project)
         {
             string sql =
                 "INSERT INTO project " +
-                "   (Title, Description, UpdateAt) " +
+                "   (Title, Description, UpdateAt, UserId, Enabled) " +
                 //"OUTPUT LAST_INSERT_ID() " +
                 "VALUES " +
-                "   (@Title, @Description, @UpdateAt, @UserId);";
+                "   (@Title, @Description, @UpdateAt, @UserId, 1);";
 
             var param = new
             {
@@ -39,20 +48,25 @@ namespace TM.Infrastructure.Repositories
             return project;
         }
 
-        public async Task<Project?> GetProjectAsync(int projectId)
+        public async Task<bool> DisableAsync(int projectId)
+        {
+            string sql = "UPDATE project SET Enabled = 0 WHERE Id = @Id AND Enabled = 1;";
+
+            var param = new DynamicParameters();
+            param.Add("Id", projectId);
+
+            var rowsAffected = await _dbService.ExecuteAsync(sql, param);
+
+            return rowsAffected > 0;
+        }
+
+        public async Task<Project?> GetAsync(int projectId)
         {
             Project? ret = null;
             try
             {
-                var sql = new StringBuilder(
-                    @"SELECT " +
-                    "    p.Id " +
-                    "   ,p.Title " +
-                    "   ,p.Description " +
-                    "   ,p.UpdateAt " +
-                    "   ,p.UserId " +
-                    "FROM project p " +
-                    "WHERE p.Id = @Id ");
+                var sql = new StringBuilder(_baseSelect);
+                sql.Append("AND p.Id = @Id ");
 
                 var param = new DynamicParameters();
                 param.Add("Id", projectId);
@@ -67,20 +81,12 @@ namespace TM.Infrastructure.Repositories
             return ret;
         }
 
-        public async Task<IEnumerable<Project>?> GetProjectAsync(int projectId, int userId)
+        public async Task<IEnumerable<Project>?> GetAsync(int projectId, int userId)
         {
             IEnumerable<Project>? ret = null;
             try
             {
-                var sql = new StringBuilder(
-                    @"SELECT " +
-                    "    p.Id " +
-                    "   ,p.Title " +
-                    "   ,p.Description " +
-                    "   ,p.UpdateAt " +
-                    "   ,p.UserId " +
-                    "FROM project p " +
-                    "WHERE 1 = 1 ");
+                var sql = new StringBuilder(_baseSelect);
 
                 var param = new DynamicParameters();
                 if (projectId != -1)

@@ -7,12 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\TM.Core\TM.Core.csproj" />
-    <ProjectReference Include="..\TM.Infrastructure\TM.Infrastructure.csproj" />
+    <Folder Include="Validations\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
 
 </Project>

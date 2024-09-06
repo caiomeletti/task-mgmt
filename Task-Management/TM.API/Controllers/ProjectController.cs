@@ -101,8 +101,29 @@ namespace TM.API.Controllers
             var projectCreated = await _projectService.CreateProjectAsync(projectDTO);
 
             return projectCreated != null
-                ? Ok(projectCreated)
+                ? Created(Request.Path, projectCreated)
                 : BadRequest();
+        }
+
+        /// <summary>
+        /// Desativar um projeto
+        /// </summary>
+        /// <param name="id">Id do projeto</param>
+        /// <remarks>123</remarks>
+        /// <response code="202">Quando o projeto for desativado com sucesso</response>
+        /// <response code="403">Quando o projeto ainda possuir atividades não concluídas</response>
+        /// <response code="404">Quando o projeto não for encontrado</response>
+        [HttpDelete]
+        [Route("{id}")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DisableProjectByIdAsync([FromRoute] int id)
+        {
+            var result = await _projectService.DisableProjectByIdAsync(projectId: id);
+            return result == 0
+                ? Accepted()
+                : NotFound();
         }
     }
 }

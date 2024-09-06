@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using TM.Core.Enum;
 using TM.Domain.Entities;
 using TM.Infrastructure.Interfaces;
 using TM.Services.DTO;
@@ -24,7 +25,7 @@ namespace TM.Services.Services
         {
             var project = _mapper.Map<Project>(projectDTO);
             project.UpdateAt = DateTime.Now;
-            var projectCreated = await _projectRepository.CreateProjectAsync(project);
+            var projectCreated = await _projectRepository.CreateAsync(project);
 
             return _mapper.Map<ProjectDTO>(projectCreated);
         }
@@ -36,7 +37,7 @@ namespace TM.Services.Services
 
         public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId)
         {
-            var project = await _projectRepository.GetProjectAsync(projectId);
+            var project = await _projectRepository.GetAsync(projectId);
             return project != null
                 ? _mapper.Map<ProjectDTO>(project)
                 : null;
@@ -49,10 +50,29 @@ namespace TM.Services.Services
 
         public async Task<IEnumerable<ProjectDTO>> GetProjectAsync(int projectId, int userId)
         {
-            var projects = await _projectRepository.GetProjectAsync(projectId, userId);
+            var projects = await _projectRepository.GetAsync(projectId, userId);
             var projectsDTO = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
 
             return projectsDTO;
+        }
+
+        public async Task<byte> DisableProjectByIdAsync(int projectId)
+        {
+            var project = await _projectRepository.GetAsync(projectId);
+            if (project == null)
+                return (byte)ResultDisabling.NotFound;
+            else
+            {
+                //todo verificar se possui tasks pendentes
+                //se possui tasks
+                //return ResultDisabling.HasPendingTask
+
+                var wasDisabled = await _projectRepository.DisableAsync(projectId);
+
+                return wasDisabled
+                    ? (byte)ResultDisabling.Disabled
+                    : (byte)ResultDisabling.NotFound;
+            }
         }
     }
 }
