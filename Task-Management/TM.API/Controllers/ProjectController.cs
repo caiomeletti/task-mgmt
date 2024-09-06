@@ -34,13 +34,15 @@ namespace TM.API.Controllers
         /// Exibir lista de projetos
         /// </summary>
         /// <returns></returns>
+        /// <response code="200">Quando existir projetos a exibir</response>
+        /// <response code="404">Quando não existir projetos a exibir</response>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ProjectDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProjectAsync()
         {
             var result = await _projectService.GetProjectAsync();
-            return result != null
+            return result != null && result.Any()
                 ? Ok(result)
                 : NotFound();
         }
@@ -50,6 +52,8 @@ namespace TM.API.Controllers
         /// </summary>
         /// <param name="id">Id do projeto</param>
         /// <returns></returns>
+        /// <response code="200">Quando o projeto for encontrado</response>
+        /// <response code="404">Quando o projeto não for encontrado</response>
         [HttpGet]
         [Route("{id}")]
         [ProducesResponseType(typeof(ProjectDTO), StatusCodes.Status200OK)]
@@ -67,6 +71,8 @@ namespace TM.API.Controllers
         /// </summary>
         /// <param name="id">Id do usuário</param>
         /// <returns></returns>
+        /// <response code="200">Quando existir projetos associados ao usuário</response>
+        /// <response code="404">Quando não existir projetos associados ao usuário</response>
         [HttpGet]
         [Route("users/{id}")]
         [ProducesResponseType(typeof(IEnumerable<ProjectDTO>), StatusCodes.Status200OK)]
@@ -84,8 +90,10 @@ namespace TM.API.Controllers
         /// </summary>
         /// <param name="createProjectViewModel"></param>
         /// <returns></returns>
+        /// <response code="201">Quando o projeto for criado com sucesso</response>
+        /// <response code="404">Quando ocorrwer falha ao criar o projeto</response>
         [HttpPost]
-        [ProducesResponseType(typeof(ProjectDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProjectDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateProjectAsync([FromBody] CreateProjectViewModel createProjectViewModel)
         {
