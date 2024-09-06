@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using TM.API.ViewModels;
+using TM.Services.DTO;
 using TM.Services.Interfaces;
 
 namespace TM.API.Controllers
@@ -8,16 +11,19 @@ namespace TM.API.Controllers
     [ApiController]
     public class ProjectController : Controller
     {
+        private readonly IMapper _mapper;
         private readonly IProjectService _projectService;
 
         public ProjectController(
+            IMapper mapper,
             IProjectService projectService)
         {
+            _mapper = mapper;
             _projectService = projectService;
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<ProjectDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProjectAsync()
         {
@@ -25,6 +31,19 @@ namespace TM.API.Controllers
             return result != null
                 ? Ok(result)
                 : NotFound();
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ProjectDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateProjectAsync([FromBody] CreateProjectViewModel createProjectViewModel)
+        {
+            var projectDTO = _mapper.Map<ProjectDTO>(createProjectViewModel);
+            var projectCreated = await _projectService.CreateProjectAsync(projectDTO);
+
+            return projectCreated != null
+                ? Ok(projectCreated)
+                : BadRequest();
         }
     }
 }
