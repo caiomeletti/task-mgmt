@@ -5,15 +5,13 @@ using TM.Infrastructure.Interfaces;
 
 namespace TM.Infrastructure.Repositories
 {
-    public class ContextTaskRepository : IContextTaskRepository
+    public class ContextTaskRepository : BaseRepository, IContextTaskRepository
     {
-        private readonly IDbServiceRepository _dbService;
         private string _baseSelect;
 
         public ContextTaskRepository(
-            IDbServiceRepository dbService)
+            IDbServiceRepository dbService) : base(dbService)
         {
-            _dbService = dbService;
             _baseSelect =
                 @"SELECT " +
                 "	 t.Id " +
@@ -53,5 +51,45 @@ namespace TM.Infrastructure.Repositories
 
             return ret;
         }
+
+        public async Task<ContextTask> CreateAsync(ContextTask contextTask)
+        {
+            string sql =
+                @"INSERT INTO context_task " +
+                "   (Title " +
+                "   ,Description " +
+                "   ,DueDate " +
+                "   ,ProjectId " +
+                "   ,UpdateAt " +
+                "   ,UserId " +
+                "   ,Enabled) " +
+                "VALUES " +
+                "   (@Title " +
+                "   ,@Description " +
+                "   ,@DueDate " +
+                "   ,@ProjectId " +
+                "   ,@UpdateAt " +
+                "   ,@UserId " +
+                "   ,1); ";
+
+            var param = new
+            {
+                contextTask.Title,
+                contextTask.Description,
+                contextTask.DueDate,
+                contextTask.ProjectId,
+                contextTask.UpdateAt,
+                contextTask.UserId
+            };
+            var affectedRows = await _dbService.ExecuteAsync(sql, param);
+            if (affectedRows > 0)
+            {
+                var lastInsertId = await GetLastInsertedIdAsync();
+                contextTask.Id = lastInsertId;
+            }
+
+            return contextTask;
+        }
+
     }
 }

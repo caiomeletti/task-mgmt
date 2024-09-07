@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using TM.Domain.Entities;
 using TM.Infrastructure.Interfaces;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
@@ -20,6 +21,23 @@ namespace TM.Services.Services
             _mapper = mapper;
             _contextTaskRepository = contextTaskRepository;
             _projectRepository = projectRepository;
+        }
+
+        public async Task<ContextTaskDTO?> CreateContextTaskAsync(ContextTaskDTO contextTaskDTO)
+        {
+            ContextTask? contextTaskCreated = null;
+            var contextTask = _mapper.Map<ContextTask>(contextTaskDTO);
+            contextTask.UpdateAt = DateTime.Now;
+
+            var project = await _projectRepository.GetAsync(contextTask.ProjectId);
+            if (project != null)
+            {
+                contextTaskCreated = await _contextTaskRepository.CreateAsync(contextTask);
+            }
+
+            return contextTaskCreated != null
+                ? _mapper.Map<ContextTaskDTO>(contextTaskCreated)
+                : null;
         }
 
         public async Task<ProjectDTO?> GetContextTaskAsync(int projectId)

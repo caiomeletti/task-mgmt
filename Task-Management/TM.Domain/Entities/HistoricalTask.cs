@@ -1,4 +1,6 @@
-﻿namespace TM.Domain.Entities
+﻿using TM.Core.Enum;
+
+namespace TM.Domain.Entities
 {
     public class HistoricalTask
     {
@@ -6,8 +8,8 @@
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime DueDate { get; set; }
-        public byte Priority { get; set; }
-        public byte Status { get; set; }
+        public Priority Priority { get; set; }
+        public CurrentTaskStatus Status { get; set; }
         public int ContextTaskId { get; set; }
         public DateTime UpdateAt { get; set; }
         public int UserId { get; set; }

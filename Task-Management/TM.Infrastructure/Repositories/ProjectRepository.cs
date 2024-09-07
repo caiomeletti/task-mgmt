@@ -5,15 +5,13 @@ using TM.Infrastructure.Interfaces;
 
 namespace TM.Infrastructure.Repositories
 {
-    public class ProjectRepository : IProjectRepository
+    public class ProjectRepository : BaseRepository, IProjectRepository
     {
-        private readonly IDbServiceRepository _dbService;
         private string _baseSelect;
 
         public ProjectRepository(
-            IDbServiceRepository dbService)
+            IDbServiceRepository dbService) : base(dbService)
         {
-            _dbService = dbService;
             _baseSelect =
                 @"SELECT " +
                 "    p.Id " +
@@ -31,7 +29,6 @@ namespace TM.Infrastructure.Repositories
             string sql =
                 "INSERT INTO project " +
                 "   (Title, Description, UpdateAt, UserId, Enabled) " +
-                //"OUTPUT LAST_INSERT_ID() " +
                 "VALUES " +
                 "   (@Title, @Description, @UpdateAt, @UserId, 1);";
 
@@ -42,9 +39,12 @@ namespace TM.Infrastructure.Repositories
                 project.UpdateAt,
                 project.UserId
             };
-            var lastInsertId = await _dbService.ExecuteAsync(sql, param);
-            //TODO retorno do ultimo id inserido
-            project.Id = lastInsertId;
+            var affectedRows = await _dbService.ExecuteAsync(sql, param);
+            if (affectedRows > 0)
+            {
+                var lastInsertId = await GetLastInsertedIdAsync();
+                project.Id = lastInsertId;
+            }
 
             return project;
         }

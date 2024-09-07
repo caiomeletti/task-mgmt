@@ -93,7 +93,7 @@ namespace TM.API.Controllers
         /// <summary>
         /// Criar um projeto
         /// </summary>
-        /// <param name="createProjectViewModel"></param>
+        /// <param name="createProjectViewModel">Dados do projeto</param>
         /// <returns></returns>
         /// <response code="201">Quando o projeto for criado com sucesso</response>
         /// <response code="404">Quando ocorrwer falha ao criar o projeto</response>
@@ -148,6 +148,31 @@ namespace TM.API.Controllers
             return result != null
                 ? Ok(result)
                 : NotFound();
+        }
+
+        /// <summary>
+        /// Criar uma atividade em um projeto
+        /// </summary>
+        /// <param name="id">Id do projeto</param>
+        /// <param name="createContextTaskViewModel">Dados da atividade</param>
+        /// <returns></returns>
+        /// <response code="201">Quando a atividade for criada com sucesso</response>
+        /// <response code="404">Quando o projeto não for encontrado</response>
+        /// <response code="400">Quando ocorrer falha ao criar a atividade</response>
+        [HttpPost]
+        [Route("{id}/tasks")]
+        [ProducesResponseType(typeof(ContextTaskDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateProjectAsync([FromRoute] int id, [FromBody] CreateContextTaskViewModel createContextTaskViewModel)
+        {
+            var contextTaskDTO = _mapper.Map<ContextTaskDTO>(createContextTaskViewModel);
+            contextTaskDTO.ProjectId = id;
+            var contextTaskCreated = await _contextTaskService.CreateContextTaskAsync(contextTaskDTO);
+
+            return contextTaskCreated != null
+                ? Created(Request.Path, contextTaskCreated)
+                : BadRequest();
         }
     }
 }
