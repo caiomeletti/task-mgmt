@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using TM.API.ViewModels;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
-using TM.Services.Services;
 
 namespace TM.API.Controllers
 {
@@ -38,15 +37,16 @@ namespace TM.API.Controllers
         /// <summary>
         /// Exibir lista de projetos
         /// </summary>
+        /// <param name="includeTasks">Incluir as atividades do projeto</param>
         /// <returns></returns>
         /// <response code="200">Quando existir projetos a exibir</response>
         /// <response code="404">Quando não existir projetos a exibir</response>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ProjectDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProjectAsync()
+        public async Task<IActionResult> GetProjectAsync([FromQuery] bool includeTasks = false)
         {
-            var result = await _projectService.GetProjectAsync();
+            var result = await _projectService.GetProjectAsync(includeTasks);
             return result != null && result.Any()
                 ? Ok(result)
                 : NotFound();
@@ -56,6 +56,7 @@ namespace TM.API.Controllers
         /// Obter um projeto
         /// </summary>
         /// <param name="id">Id do projeto</param>
+        /// <param name="includeTasks">Incluir as atividades do projeto</param>
         /// <returns></returns>
         /// <response code="200">Quando o projeto for encontrado</response>
         /// <response code="404">Quando o projeto não for encontrado</response>
@@ -63,9 +64,9 @@ namespace TM.API.Controllers
         [Route("{id}")]
         [ProducesResponseType(typeof(ProjectDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProjectByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetProjectByIdAsync([FromRoute] int id, [FromQuery] bool includeTasks = false)
         {
-            var result = await _projectService.GetProjectByIdAsync(projectId: id);
+            var result = await _projectService.GetProjectByIdAsync(projectId: id, includeTasks);
             return result != null
                 ? Ok(result)
                 : NotFound();
@@ -75,6 +76,7 @@ namespace TM.API.Controllers
         /// Exibir lista de projetos de um usuário
         /// </summary>
         /// <param name="id">Id do usuário</param>
+        /// <param name="includeTasks">Incluir as atividades do projeto</param>
         /// <returns></returns>
         /// <response code="200">Quando existir projetos associados ao usuário</response>
         /// <response code="404">Quando não existir projetos associados ao usuário</response>
@@ -82,9 +84,9 @@ namespace TM.API.Controllers
         [Route("users/{id}")]
         [ProducesResponseType(typeof(IEnumerable<ProjectDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProjectByUserIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetProjectByUserIdAsync([FromRoute] int id, [FromQuery] bool includeTasks = false)
         {
-            var result = await _projectService.GetProjectByUserIdAsync(userId: id);
+            var result = await _projectService.GetProjectByUserIdAsync(userId: id, includeTasks);
             return result != null
                 ? Ok(result)
                 : NotFound();

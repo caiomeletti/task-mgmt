@@ -11,15 +11,19 @@ namespace TM.Services.Services
     {
         private readonly IMapper _mapper;
         private readonly IProjectRepository _projectRepository;
+        private readonly IContextTaskRepository _contextTaskRepository;
 
         public ProjectService(
             IMapper mapper,
-            IProjectRepository projectRepository
+            IProjectRepository projectRepository,
+            IContextTaskRepository contextTaskRepository
             )
         {
             _mapper = mapper;
+            _contextTaskRepository = contextTaskRepository;
             _projectRepository = projectRepository;
         }
+
 
         public async Task<ProjectDTO> CreateProjectAsync(ProjectDTO projectDTO)
         {
@@ -30,27 +34,40 @@ namespace TM.Services.Services
             return _mapper.Map<ProjectDTO>(projectCreated);
         }
 
-        public async Task<IEnumerable<ProjectDTO>> GetProjectAsync()
+        public async Task<IEnumerable<ProjectDTO>> GetProjectAsync(bool includeTasks)
         {
-            return await GetProjectAsync(-1, -1);
+            return await GetProjectAsync(-1, -1, includeTasks);
         }
 
-        public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId)
+        public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId, bool includeTasks)
         {
             var project = await _projectRepository.GetAsync(projectId);
+            if (includeTasks && project != null)
+            {
+                project.ContextTasks = await _contextTaskRepository.GetAsync(projectId);
+            }
+
             return project != null
                 ? _mapper.Map<ProjectDTO>(project)
                 : null;
         }
 
-        public async Task<IEnumerable<ProjectDTO>> GetProjectByUserIdAsync(int userId)
+        public async Task<IEnumerable<ProjectDTO>> GetProjectByUserIdAsync(int userId, bool includeTasks)
         {
-            return await GetProjectAsync(-1, userId);
+            return await GetProjectAsync(-1, userId, includeTasks);
         }
 
-        public async Task<IEnumerable<ProjectDTO>> GetProjectAsync(int projectId, int userId)
+        public async Task<IEnumerable<ProjectDTO>> GetProjectAsync(int projectId, int userId, bool includeTasks)
         {
             var projects = await _projectRepository.GetAsync(projectId, userId);
+            if (includeTasks && projects != null && projects.Any())
+            {
+                foreach (var project in projects)
+                {
+                    project.ContextTasks = await _contextTaskRepository.GetAsync(project.Id);
+                }
+            }
+
             var projectsDTO = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
 
             return projectsDTO;
