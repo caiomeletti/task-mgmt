@@ -80,9 +80,10 @@ namespace TM.Services.Services
                 return (byte)ResultDisabling.NotFound;
             else
             {
-                //todo verificar se possui tasks pendentes
-                //se possui tasks
-                //return ResultDisabling.HasPendingTask
+                var contextTasks = await _contextTaskRepository.GetAsync(projectId);
+                var pendingTasks = contextTasks != null && contextTasks.Any(x => x.Status == CurrentTaskStatus.Pending);
+                if (pendingTasks)
+                    return (byte)ResultDisabling.HasPendingTask;
 
                 var wasDisabled = await _projectRepository.DisableAsync(projectId);
 

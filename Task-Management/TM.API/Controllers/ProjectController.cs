@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TM.API.ViewModels;
+using TM.Core.Enum;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
 
@@ -128,9 +129,11 @@ namespace TM.API.Controllers
         public async Task<IActionResult> DisableProjectByIdAsync([FromRoute] int id)
         {
             var result = await _projectService.DisableProjectByIdAsync(projectId: id);
-            return result == 0
-                ? Accepted()
-                : NotFound();
+            return (ResultDisabling)result == ResultDisabling.HasPendingTask
+                ? Forbid()
+                : (ResultDisabling)result == ResultDisabling.NotFound
+                    ? NotFound()
+                    : Accepted();
         }
 
         /// <summary>
