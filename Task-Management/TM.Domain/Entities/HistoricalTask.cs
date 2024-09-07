@@ -13,7 +13,6 @@ namespace TM.Domain.Entities
         public int ContextTaskId { get; set; }
         public DateTime UpdateAt { get; set; }
         public int UserId { get; set; }
-        public bool Enabled { get; set; }
 
         public HistoricalTask()
         {
@@ -22,7 +21,6 @@ namespace TM.Domain.Entities
             Priority = 0;
             Status = 0;
             UpdateAt = DateTime.Now;
-            Enabled = true;
         }
     }
 }

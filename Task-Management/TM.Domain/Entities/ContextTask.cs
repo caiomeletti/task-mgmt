@@ -24,5 +24,40 @@ namespace TM.Domain.Entities
             UpdateAt = DateTime.Now;
             Enabled = true;
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null || obj is not ContextTask)
+                return false;
+
+            var other = (ContextTask)obj;
+            if (Id != other.Id ||
+                Title != other.Title ||
+                Description != other.Description ||
+                DueDate != other.DueDate ||
+                Priority != other.Priority ||
+                Status != other.Status ||
+                ProjectId != other.ProjectId ||
+                UpdateAt != other.UpdateAt ||
+                UserId != other.UserId ||
+                Enabled != other.Enabled)
+                return false;
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode() ^
+                Title.GetHashCode() ^
+                Description.GetHashCode() ^
+                DueDate.GetHashCode() ^
+                Priority.GetHashCode() ^
+                Status.GetHashCode() ^
+                ProjectId.GetHashCode() ^
+                UpdateAt.GetHashCode() ^
+                UserId.GetHashCode() ^
+                Enabled.GetHashCode();
+        }
     }
 }

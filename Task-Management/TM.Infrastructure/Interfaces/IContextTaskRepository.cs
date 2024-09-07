@@ -4,8 +4,10 @@ namespace TM.Infrastructure.Interfaces
 {
     public interface IContextTaskRepository
     {
-        Task<IEnumerable<ContextTask>?> GetAsync(int projectId);
+        Task<ContextTask?> GetAsync(int contextTaskId);
+        Task<IEnumerable<ContextTask>?> GetAllAsync(int projectId);
         Task<ContextTask> CreateAsync(ContextTask contextTask);
         Task<bool> DisableAsync(int contextTaskId);
+        Task<ContextTask?> UpdateAsync(ContextTask contextTask);
     }
 }

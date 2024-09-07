@@ -44,7 +44,7 @@ namespace TM.Services.Services
             var project = await _projectRepository.GetAsync(projectId);
             if (includeTasks && project != null)
             {
-                project.ContextTasks = await _contextTaskRepository.GetAsync(projectId);
+                project.ContextTasks = await _contextTaskRepository.GetAllAsync(projectId);
             }
 
             return project != null
@@ -64,7 +64,7 @@ namespace TM.Services.Services
             {
                 foreach (var project in projects)
                 {
-                    project.ContextTasks = await _contextTaskRepository.GetAsync(project.Id);
+                    project.ContextTasks = await _contextTaskRepository.GetAllAsync(project.Id);
                 }
             }
 
@@ -80,7 +80,7 @@ namespace TM.Services.Services
                 return (byte)ResultDisabling.NotFound;
             else
             {
-                var contextTasks = await _contextTaskRepository.GetAsync(projectId);
+                var contextTasks = await _contextTaskRepository.GetAllAsync(projectId);
                 var pendingTasks = contextTasks != null && contextTasks.Any(x => x.Status == CurrentTaskStatus.Pending);
                 if (pendingTasks)
                     return (byte)ResultDisabling.HasPendingTask;

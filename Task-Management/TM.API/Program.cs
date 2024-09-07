@@ -1,6 +1,4 @@
 using AutoMapper;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using TM.API.ViewModels;
@@ -17,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IDbServiceRepository, DbServiceRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IContextTaskRepository, ContextTaskRepository>();
+builder.Services.AddScoped<IHistoricalTaskRepository, HistoricalTaskRepository>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IContextTaskService, ContextTaskService>();
 
@@ -50,6 +49,7 @@ var config = new MapperConfiguration(cfg =>
     cfg.CreateMap<CreateProjectViewModel, ProjectDTO>();
     cfg.CreateMap<ContextTask, ContextTaskDTO>().ReverseMap();
     cfg.CreateMap<CreateContextTaskViewModel, ContextTaskDTO>();
+    cfg.CreateMap<ContextTask, HistoricalTask>().ReverseMap();
 });
 IMapper mapper = config.CreateMapper();
 #endregion

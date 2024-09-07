@@ -28,7 +28,7 @@ namespace TM.Infrastructure.Repositories
                 "WHERE t.Enabled = 1 ";
         }
 
-        public async Task<IEnumerable<ContextTask>?> GetAsync(int projectId)
+        public async Task<IEnumerable<ContextTask>?> GetAllAsync(int projectId)
         {
             IEnumerable<ContextTask>? ret = null;
             try
@@ -43,6 +43,30 @@ namespace TM.Infrastructure.Repositories
                 }
 
                 ret = await _dbService.QueryAsync<ContextTask>(sql.ToString(), param);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message} {ex.StackTrace} {ex.InnerException}");
+            }
+
+            return ret;
+        }
+
+        public async Task<ContextTask?> GetAsync(int contextTaskId)
+        {
+            ContextTask? ret = null;
+            try
+            {
+                var sql = new StringBuilder(_baseSelect);
+
+                var param = new DynamicParameters();
+                if (contextTaskId != -1)
+                {
+                    sql.Append("AND t.Id = @Id");
+                    param.Add("Id", contextTaskId);
+                }
+
+                ret = await _dbService.QueryFirstAsync<ContextTask>(sql.ToString(), param);
             }
             catch (Exception ex)
             {
@@ -103,5 +127,37 @@ namespace TM.Infrastructure.Repositories
             return rowsAffected > 0;
         }
 
+        public async Task<ContextTask?> UpdateAsync(ContextTask contextTask)
+        {
+            string sql =
+               @"UPDATE context_task SET " +
+               "    Title = @Title " +
+               "   ,Description = @Description " +
+               "   ,DueDate = @DueDate " +
+               "   ,Priority = @Priority " +
+               "   ,Status = @Status " +
+               "   ,UpdateAt = @UpdateAt " +
+               "   ,UserId = @UserId " +
+               "WHERE " +
+               "    Id = @Id ";
+
+            var param = new
+            {
+                contextTask.Title,
+                contextTask.Description,
+                contextTask.DueDate,
+                contextTask.Priority,
+                contextTask.Status,
+                contextTask.UpdateAt,
+                contextTask.UserId,
+                contextTask.Id
+            };
+            var affectedRows = await _dbService.ExecuteAsync(sql, param);
+            if (affectedRows > 0)
+            {
+            }
+
+            return contextTask;
+        }
     }
 }

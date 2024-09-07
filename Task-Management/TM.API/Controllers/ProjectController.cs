@@ -181,10 +181,33 @@ namespace TM.API.Controllers
         }
 
         /// <summary>
+        /// Atualizar uma tarefa
+        /// </summary>
+        /// <param name="id">Id da tarefa</param>
+        /// <param name="updateContextTaskViewModel">Dados da tarefa</param>
+        /// <returns></returns>
+        /// <response code="202">Quando a tarefa for alterada com sucesso</response>
+        /// <response code="404">Quando a tarefa não for encontrada</response>
+        [HttpPut]
+        [Route("tasks/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateContextTaskAsync([FromRoute]int id, [FromBody] UpdateContextTaskViewModel updateContextTaskViewModel)
+        {
+            var contextTaskDTO = _mapper.Map<ContextTaskDTO>(updateContextTaskViewModel);
+            contextTaskDTO.Id = id;
+            var contextTaskUpdated = await _contextTaskService.UpdateContextTaskAsync(contextTaskDTO);
+
+            return contextTaskUpdated != null
+                ? Ok(contextTaskUpdated)
+                : BadRequest();
+        }
+
+        /// <summary>
         /// Desativar uma tarefa do projeto
         /// </summary>
         /// <param name="id">Id da tarefa</param>
-        /// <remarks>123</remarks>
+        /// <remarks></remarks>
         /// <response code="202">Quando a tarefa for desativada com sucesso</response>
         /// <response code="404">Quando a tarefa não for encontrada</response>
         [HttpDelete]
