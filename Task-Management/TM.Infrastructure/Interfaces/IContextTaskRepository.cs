@@ -6,5 +6,6 @@ namespace TM.Infrastructure.Interfaces
     {
         Task<IEnumerable<ContextTask>?> GetAsync(int projectId);
         Task<ContextTask> CreateAsync(ContextTask contextTask);
+        Task<bool> DisableAsync(int contextTaskId);
     }
 }

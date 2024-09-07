@@ -169,7 +169,7 @@ namespace TM.API.Controllers
         [ProducesResponseType(typeof(ContextTaskDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateProjectAsync([FromRoute] int id, [FromBody] CreateContextTaskViewModel createContextTaskViewModel)
+        public async Task<IActionResult> CreateContextTaskAsync([FromRoute] int id, [FromBody] CreateContextTaskViewModel createContextTaskViewModel)
         {
             var contextTaskDTO = _mapper.Map<ContextTaskDTO>(createContextTaskViewModel);
             contextTaskDTO.ProjectId = id;
@@ -178,6 +178,25 @@ namespace TM.API.Controllers
             return contextTaskCreated != null
                 ? Created(Request.Path, contextTaskCreated)
                 : BadRequest();
+        }
+
+        /// <summary>
+        /// Desativar uma tarefa do projeto
+        /// </summary>
+        /// <param name="id">Id da tarefa</param>
+        /// <remarks>123</remarks>
+        /// <response code="202">Quando a tarefa for desativada com sucesso</response>
+        /// <response code="404">Quando a tarefa não for encontrada</response>
+        [HttpDelete]
+        [Route("tasks/{id}")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DisableContextTaskByIdAsync([FromRoute] int id)
+        {
+            var result = await _contextTaskService.DisableContextTaskByIdAsync(contextTaskId: id);
+            return result
+                ? Accepted()
+                : NotFound();
         }
     }
 }

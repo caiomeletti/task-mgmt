@@ -91,5 +91,17 @@ namespace TM.Infrastructure.Repositories
             return contextTask;
         }
 
+        public async Task<bool> DisableAsync(int contextTaskId)
+        {
+            string sql = "UPDATE context_task SET Enabled = 0 WHERE Id = @Id AND Enabled = 1;";
+
+            var param = new DynamicParameters();
+            param.Add("Id", contextTaskId);
+
+            var rowsAffected = await _dbService.ExecuteAsync(sql, param);
+
+            return rowsAffected > 0;
+        }
+
     }
 }

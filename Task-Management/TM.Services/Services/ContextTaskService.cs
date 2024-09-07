@@ -40,6 +40,11 @@ namespace TM.Services.Services
                 : null;
         }
 
+        public async Task<bool> DisableContextTaskByIdAsync(int contextTaskId)
+        {
+            return await _contextTaskRepository.DisableAsync(contextTaskId);
+        }
+
         public async Task<ProjectDTO?> GetContextTaskAsync(int projectId)
         {
             var project = await _projectRepository.GetAsync(projectId);
