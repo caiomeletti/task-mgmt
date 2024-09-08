@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Configuration;
+using TM.Core.Structs;
 using TM.Domain.Entities;
 using TM.Infrastructure.Interfaces;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
-using TM.Core.Structs;
 
 namespace TM.Services.Services
 {
@@ -33,12 +33,11 @@ namespace TM.Services.Services
 
         public async Task<Result<ContextTaskDTO>> CreateContextTaskAsync(ContextTaskDTO contextTaskDTO)
         {
-            Result<ContextTaskDTO> ret = new ErrorResult<ContextTaskDTO>("Project not found");
+            Result<ContextTaskDTO> ret = new NotFoundResult<ContextTaskDTO>("Project not found");
 
             if (!int.TryParse(_configuration["ContextTask:MaxNumber"], out int maxNumberTasks))
                 maxNumberTasks = 20;
 
-            ContextTask? contextTaskCreated = null;
             var contextTask = _mapper.Map<ContextTask>(contextTaskDTO);
             contextTask.UpdateAt = DateTime.Now;
 
@@ -51,10 +50,10 @@ namespace TM.Services.Services
                     : 0;
                 if (currentNumberTasks < maxNumberTasks)
                 {
-                    contextTaskCreated = await _contextTaskRepository.CreateAsync(contextTask);
+                    ContextTask? contextTaskCreated = await _contextTaskRepository.CreateAsync(contextTask);
                     ret = contextTaskCreated != null
                         ? new SuccessResult<ContextTaskDTO>(_mapper.Map<ContextTaskDTO>(contextTaskCreated))
-                        : new ErrorResult<ContextTaskDTO>("Error in creating tasks");
+                        : new ErrorResult<ContextTaskDTO>("Error creating the task");
                 }
                 else
                 {
@@ -65,12 +64,15 @@ namespace TM.Services.Services
             return ret;
         }
 
-        public async Task<bool> DisableContextTaskByIdAsync(int contextTaskId)
+        public async Task<Result<bool>> DisableContextTaskByIdAsync(int contextTaskId)
         {
-            return await _contextTaskRepository.DisableAsync(contextTaskId);
+            var ret = await _contextTaskRepository.DisableAsync(contextTaskId);
+            return ret
+                ? new SuccessResult<bool>(ret)
+                : new NotFoundResult<bool>("Task not found");
         }
 
-        public async Task<ProjectDTO?> GetContextTaskAsync(int projectId)
+        public async Task<Result<ProjectDTO>> GetContextTaskAsync(int projectId)
         {
             var project = await _projectRepository.GetAsync(projectId);
             if (project != null)
@@ -79,11 +81,11 @@ namespace TM.Services.Services
             }
 
             return project != null
-                ? _mapper.Map<ProjectDTO>(project)
-                : null;
+                ? new SuccessResult<ProjectDTO>(_mapper.Map<ProjectDTO>(project))
+                : new NotFoundResult<ProjectDTO>("Task not found");
         }
 
-        public async Task<ContextTaskDTO?> UpdateContextTaskAsync(ContextTaskDTO contextTaskDTO)
+        public async Task<Result<ContextTaskDTO>> UpdateContextTaskAsync(ContextTaskDTO contextTaskDTO)
         {
             ContextTask? contextTaskUpdated = null;
 
@@ -113,8 +115,8 @@ namespace TM.Services.Services
             }
 
             return contextTaskUpdated != null
-                ? _mapper.Map<ContextTaskDTO>(contextTaskUpdated)
-                : null;
+                ? new SuccessResult<ContextTaskDTO>(_mapper.Map<ContextTaskDTO>(contextTaskUpdated))
+                : new ErrorResult<ContextTaskDTO>("Error updating the task");
         }
     }
 }

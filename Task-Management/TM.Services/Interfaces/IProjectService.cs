@@ -1,14 +1,15 @@
-﻿using TM.Services.DTO;
+﻿using TM.Core.Structs;
+using TM.Services.DTO;
 
 namespace TM.Services.Interfaces
 {
     public interface IProjectService
     {
-        Task<ProjectDTO> CreateProjectAsync(ProjectDTO projectDTO);
-        Task<IEnumerable<ProjectDTO>> GetProjectAsync(bool includeTasks);
-        Task<ProjectDTO?> GetProjectByIdAsync(int projectId, bool includeTasks);
-        Task<IEnumerable<ProjectDTO>> GetProjectAsync(int projectId, int userId, bool includeTasks);
-        Task<IEnumerable<ProjectDTO>> GetProjectByUserIdAsync(int userId, bool includeTasks);
-        Task<byte> DisableProjectByIdAsync(int projectId);
+        Task<Result<ProjectDTO>> CreateProjectAsync(ProjectDTO projectDTO);
+        Task<Result<IEnumerable<ProjectDTO>>> GetProjectAsync(bool includeTasks);
+        Task<Result<ProjectDTO>> GetProjectByIdAsync(int projectId, bool includeTasks);
+        Task<Result<IEnumerable<ProjectDTO>>> GetProjectAsync(int projectId, int userId, bool includeTasks);
+        Task<Result<IEnumerable<ProjectDTO>>> GetProjectByUserIdAsync(int userId, bool includeTasks);
+        Task<Result<bool>> DisableProjectByIdAsync(int projectId);
     }
 }

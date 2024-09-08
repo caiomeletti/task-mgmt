@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TM.API.ViewModels;
-using TM.Core.Enum;
 using TM.Core.Structs;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
@@ -49,9 +48,12 @@ namespace TM.API.Controllers
         public async Task<IActionResult> GetProjectAsync([FromQuery] bool includeTasks = false)
         {
             var result = await _projectService.GetProjectAsync(includeTasks);
-            return result != null && result.Any()
-                ? Ok(result)
-                : NotFound();
+            return result switch
+            {
+                SuccessResult<IEnumerable<ProjectDTO>> => Ok(result),
+                NotFoundResult<IEnumerable<ProjectDTO>> => NotFound(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
         }
 
         /// <summary>
@@ -69,9 +71,12 @@ namespace TM.API.Controllers
         public async Task<IActionResult> GetProjectByIdAsync([FromRoute] int id, [FromQuery] bool includeTasks = false)
         {
             var result = await _projectService.GetProjectByIdAsync(projectId: id, includeTasks);
-            return result != null
-                ? Ok(result)
-                : NotFound();
+            return result switch
+            {
+                SuccessResult<ProjectDTO> => Ok(result),
+                ErrorResult<ProjectDTO> => NotFound(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
         }
 
         /// <summary>
@@ -89,9 +94,12 @@ namespace TM.API.Controllers
         public async Task<IActionResult> GetProjectByUserIdAsync([FromRoute] int id, [FromQuery] bool includeTasks = false)
         {
             var result = await _projectService.GetProjectByUserIdAsync(userId: id, includeTasks);
-            return result != null
-                ? Ok(result)
-                : NotFound();
+            return result switch
+            {
+                SuccessResult<IEnumerable<ProjectDTO>> => Ok(result),
+                NotFoundResult<IEnumerable<ProjectDTO>> => NotFound(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
         }
 
         /// <summary>
@@ -109,9 +117,12 @@ namespace TM.API.Controllers
             var projectDTO = _mapper.Map<ProjectDTO>(createProjectViewModel);
             var projectCreated = await _projectService.CreateProjectAsync(projectDTO);
 
-            return projectCreated != null
-                ? Created(Request.Path, projectCreated)
-                : BadRequest();
+            return projectCreated switch
+            {
+                SuccessResult<ProjectDTO> => Created(Request.Path, projectCreated),
+                ErrorResult<ProjectDTO> => BadRequest(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
         }
 
         /// <summary>
@@ -120,27 +131,29 @@ namespace TM.API.Controllers
         /// <param name="id">Id do projeto</param>
         /// <remarks>123</remarks>
         /// <response code="202">Quando o projeto for desativado com sucesso</response>
-        /// <response code="403">Quando o projeto ainda possuir atividades não concluídas</response>
+        /// <response code="400">Quando o projeto ainda possuir atividades não concluídas</response>
         /// <response code="404">Quando o projeto não for encontrado</response>
         [HttpDelete]
         [Route("{id}")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DisableProjectByIdAsync([FromRoute] int id)
         {
             var result = await _projectService.DisableProjectByIdAsync(projectId: id);
-            return (ResultDisabling)result == ResultDisabling.HasPendingTask
-                ? Forbid()
-                : (ResultDisabling)result == ResultDisabling.NotFound
-                    ? NotFound()
-                    : Accepted();
+            return result switch
+            {
+                SuccessResult<bool> => Accepted(),
+                NotFoundResult<bool> => NotFound(),
+                ErrorResult<bool> => BadRequest(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
         }
 
         /// <summary>
         /// Exibir lista de tarefas de um projeto
         /// </summary>
-        /// <param name="id">Id do usuário</param>
+        /// <param name="id">Id do projeto</param>
         /// <returns></returns>
         /// <response code="200">Quando existir tarefas associadas ao projeto</response>
         /// <response code="404">Quando não existir tarefas associadas ao projeto</response>
@@ -151,9 +164,12 @@ namespace TM.API.Controllers
         public async Task<IActionResult> GetTasksAsync([FromRoute] int id)
         {
             var result = await _contextTaskService.GetContextTaskAsync(projectId: id);
-            return result != null
-                ? Ok(result)
-                : NotFound();
+            return result switch
+            {
+                SuccessResult<ProjectDTO> => Ok(result),
+                NotFoundResult<ProjectDTO> => NotFound(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
         }
 
         /// <summary>
@@ -184,6 +200,7 @@ namespace TM.API.Controllers
                 ForbiddenResult<ContextTaskDTO> => Conflict(),
                 ErrorResult<ContextTaskDTO> => BadRequest(),
                 SuccessResult<ContextTaskDTO> => Created(Request.Path, contextTaskCreated),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
             };
         }
 
@@ -199,15 +216,18 @@ namespace TM.API.Controllers
         [Route("tasks/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateContextTaskAsync([FromRoute]int id, [FromBody] UpdateContextTaskViewModel updateContextTaskViewModel)
+        public async Task<IActionResult> UpdateContextTaskAsync([FromRoute] int id, [FromBody] UpdateContextTaskViewModel updateContextTaskViewModel)
         {
             var contextTaskDTO = _mapper.Map<ContextTaskDTO>(updateContextTaskViewModel);
             contextTaskDTO.Id = id;
             var contextTaskUpdated = await _contextTaskService.UpdateContextTaskAsync(contextTaskDTO);
 
-            return contextTaskUpdated != null
-                ? Ok(contextTaskUpdated)
-                : BadRequest();
+            return contextTaskUpdated switch
+            {
+                SuccessResult<ContextTaskDTO> => Ok(contextTaskUpdated),
+                ErrorResult<ContextTaskDTO> => BadRequest(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
         }
 
         /// <summary>
@@ -224,15 +244,17 @@ namespace TM.API.Controllers
         public async Task<IActionResult> DisableContextTaskByIdAsync([FromRoute] int id)
         {
             var result = await _contextTaskService.DisableContextTaskByIdAsync(contextTaskId: id);
-            return result
-                ? Accepted()
-                : NotFound();
+            return result switch
+            {
+                SuccessResult<bool> => Accepted(),
+                NotFoundResult<bool> => NotFound(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
         }
 
         //TODO post/comments
         //TODO put/comments
         //TODO get/reports
         //todo unit tests
-        //todo Limite de Tarefas por Projeto
     }
 }
