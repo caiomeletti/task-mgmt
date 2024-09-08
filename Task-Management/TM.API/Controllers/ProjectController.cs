@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TM.API.ViewModels;
 using TM.Core.Enum;
+using TM.Core.Structs;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
 
@@ -164,10 +165,12 @@ namespace TM.API.Controllers
         /// <response code="201">Quando a atividade for criada com sucesso</response>
         /// <response code="404">Quando o projeto não for encontrado</response>
         /// <response code="400">Quando ocorrer falha ao criar a atividade</response>
+        /// <response code="409">Quando ultrapassar o limite de atividades por projeto</response>
         [HttpPost]
         [Route("{id}/tasks")]
         [ProducesResponseType(typeof(ContextTaskDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateContextTaskAsync([FromRoute] int id, [FromBody] CreateContextTaskViewModel createContextTaskViewModel)
         {
@@ -175,9 +178,13 @@ namespace TM.API.Controllers
             contextTaskDTO.ProjectId = id;
             var contextTaskCreated = await _contextTaskService.CreateContextTaskAsync(contextTaskDTO);
 
-            return contextTaskCreated != null
-                ? Created(Request.Path, contextTaskCreated)
-                : BadRequest();
+            return contextTaskCreated switch
+            {
+                NotFoundResult<ContextTaskDTO> => NotFound(),
+                ForbiddenResult<ContextTaskDTO> => Conflict(),
+                ErrorResult<ContextTaskDTO> => BadRequest(),
+                SuccessResult<ContextTaskDTO> => Created(Request.Path, contextTaskCreated),
+            };
         }
 
         /// <summary>
@@ -221,5 +228,11 @@ namespace TM.API.Controllers
                 ? Accepted()
                 : NotFound();
         }
+
+        //TODO post/comments
+        //TODO put/comments
+        //TODO get/reports
+        //todo unit tests
+        //todo Limite de Tarefas por Projeto
     }
 }

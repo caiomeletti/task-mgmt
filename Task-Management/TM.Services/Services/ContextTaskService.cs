@@ -1,33 +1,43 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using TM.Domain.Entities;
 using TM.Infrastructure.Interfaces;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
+using TM.Core.Structs;
 
 namespace TM.Services.Services
 {
     public class ContextTaskService : IContextTaskService
     {
+        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly IProjectRepository _projectRepository;
         private readonly IContextTaskRepository _contextTaskRepository;
         private readonly IHistoricalTaskRepository _historicalTaskRepository;
 
         public ContextTaskService(
+            IConfiguration configuration,
             IMapper mapper,
             IProjectRepository projectRepository,
             IContextTaskRepository contextTaskRepository,
             IHistoricalTaskRepository historicalTaskRepository
             )
         {
+            _configuration = configuration;
             _mapper = mapper;
             _contextTaskRepository = contextTaskRepository;
             _projectRepository = projectRepository;
             _historicalTaskRepository = historicalTaskRepository;
         }
 
-        public async Task<ContextTaskDTO?> CreateContextTaskAsync(ContextTaskDTO contextTaskDTO)
+        public async Task<Result<ContextTaskDTO>> CreateContextTaskAsync(ContextTaskDTO contextTaskDTO)
         {
+            Result<ContextTaskDTO> ret = new ErrorResult<ContextTaskDTO>("Project not found");
+
+            if (!int.TryParse(_configuration["ContextTask:MaxNumber"], out int maxNumberTasks))
+                maxNumberTasks = 20;
+
             ContextTask? contextTaskCreated = null;
             var contextTask = _mapper.Map<ContextTask>(contextTaskDTO);
             contextTask.UpdateAt = DateTime.Now;
@@ -35,12 +45,24 @@ namespace TM.Services.Services
             var project = await _projectRepository.GetAsync(contextTask.ProjectId);
             if (project != null)
             {
-                contextTaskCreated = await _contextTaskRepository.CreateAsync(contextTask);
+                var contextTasks = await _contextTaskRepository.GetAllAsync(contextTask.ProjectId);
+                var currentNumberTasks = contextTasks != null
+                    ? contextTasks.Count()
+                    : 0;
+                if (currentNumberTasks < maxNumberTasks)
+                {
+                    contextTaskCreated = await _contextTaskRepository.CreateAsync(contextTask);
+                    ret = contextTaskCreated != null
+                        ? new SuccessResult<ContextTaskDTO>(_mapper.Map<ContextTaskDTO>(contextTaskCreated))
+                        : new ErrorResult<ContextTaskDTO>("Error in creating tasks");
+                }
+                else
+                {
+                    ret = new ForbiddenResult<ContextTaskDTO>("Maximum number of tasks has been reached");
+                }
             }
 
-            return contextTaskCreated != null
-                ? _mapper.Map<ContextTaskDTO>(contextTaskCreated)
-                : null;
+            return ret;
         }
 
         public async Task<bool> DisableContextTaskByIdAsync(int contextTaskId)
@@ -64,7 +86,7 @@ namespace TM.Services.Services
         public async Task<ContextTaskDTO?> UpdateContextTaskAsync(ContextTaskDTO contextTaskDTO)
         {
             ContextTask? contextTaskUpdated = null;
-            
+
             var contextTask = _mapper.Map<ContextTask>(contextTaskDTO);
             var currentContextTask = await _contextTaskRepository.GetAsync(contextTask.Id);
             if (currentContextTask != null)
