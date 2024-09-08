@@ -8,3 +8,5 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0301:Simplificar a inicialização de coleção", Justification = "<Pendente>", Scope = "member", Target = "~M:TM.Core.Structs.ErrorResult.#ctor(System.String,System.Collections.Generic.IReadOnlyCollection{TM.Core.Structs.Error})")]
 [assembly: SuppressMessage("Style", "IDE0301:Simplificar a inicialização de coleção", Justification = "<Pendente>", Scope = "member", Target = "~M:TM.Core.Structs.ErrorResult.#ctor(System.String)")]
 [assembly: SuppressMessage("Style", "IDE0301:Simplificar a inicialização de coleção", Justification = "<Pendente>", Scope = "member", Target = "~M:TM.Core.Structs.ErrorResult`1.#ctor(System.String,System.Collections.Generic.IReadOnlyCollection{TM.Core.Structs.Error})")]
+[assembly: SuppressMessage("Style", "IDE0290:Usar construtor primário", Justification = "<Pendente>", Scope = "member", Target = "~M:TM.Core.Structs.Error.#ctor(System.String,System.String)")]
+[assembly: SuppressMessage("Style", "IDE0301:Simplificar a inicialização de coleção", Justification = "<Pendente>", Scope = "member", Target = "~M:TM.Core.Structs.ErrorResult`1.#ctor(System.String)")]

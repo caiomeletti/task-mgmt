@@ -10,5 +10,6 @@ namespace TM.Services.Interfaces
         Task<Result<bool>> DisableContextTaskByIdAsync(int contextTaskId);
         Task<Result<ProjectDTO>> GetContextTaskAsync(int projectId);
         Task<Result<ContextTaskDTO>> UpdateContextTaskAsync(ContextTaskDTO contextTaskDTO);
+        Task<Result<TaskCommentDTO>> UpdateTaskComentAsync(TaskCommentDTO taskCommentDTO);
     }
 }

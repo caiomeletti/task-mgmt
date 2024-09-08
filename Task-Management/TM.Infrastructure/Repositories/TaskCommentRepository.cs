@@ -7,7 +7,7 @@ namespace TM.Infrastructure.Repositories
 {
     public class TaskCommentRepository : BaseRepository, ITaskCommentRepository
     {
-        private string _baseSelect;
+        private readonly string _baseSelect;
 
         public TaskCommentRepository(
             IDbServiceRepository dbService) : base(dbService)
@@ -48,6 +48,30 @@ namespace TM.Infrastructure.Repositories
             return ret;
         }
 
+        public async Task<TaskComment?> GetAsync(int taskCommentId)
+        {
+            TaskComment? ret = null;
+            try
+            {
+                var sql = new StringBuilder(_baseSelect);
+
+                var param = new DynamicParameters();
+                if (taskCommentId != -1)
+                {
+                    sql.Append("AND t.Id = @Id");
+                    param.Add("Id", taskCommentId);
+                }
+
+                ret = await _dbService.QueryFirstAsync<TaskComment>(sql.ToString(), param);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message} {ex.StackTrace} {ex.InnerException}");
+            }
+
+            return ret;
+        }
+		
         public async Task<TaskComment> CreateAsync(TaskComment taskComment)
         {
             string sql =

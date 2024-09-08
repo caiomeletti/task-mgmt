@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public class UpdateContextTaskViewModel : CreateContextTaskViewModel
+    public class UpdateTaskCommentViewModel : CreateTaskCommentViewModel
     {
     }
 }

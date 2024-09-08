@@ -7,7 +7,7 @@ namespace TM.Infrastructure.Repositories
 {
     public class ContextTaskRepository : BaseRepository, IContextTaskRepository
     {
-        private string _baseSelect;
+        private readonly string _baseSelect;
 
         public ContextTaskRepository(
             IDbServiceRepository dbService) : base(dbService)

@@ -7,7 +7,7 @@ namespace TM.Infrastructure.Repositories
 {
     public class ProjectRepository : BaseRepository, IProjectRepository
     {
-        private string _baseSelect;
+        private readonly string _baseSelect;
 
         public ProjectRepository(
             IDbServiceRepository dbService) : base(dbService)

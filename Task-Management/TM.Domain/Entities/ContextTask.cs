@@ -15,6 +15,8 @@ namespace TM.Domain.Entities
         public int UserId { get; set; }
         public bool Enabled { get; set; }
 
+        public virtual IEnumerable<TaskComment>? TaskComments { get; set; }
+
         public ContextTask()
         {
             Title = string.Empty;

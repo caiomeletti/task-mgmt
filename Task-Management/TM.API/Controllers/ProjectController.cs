@@ -260,6 +260,32 @@ namespace TM.API.Controllers
         }
 
         /// <summary>
+        /// Atualizar o comentário de uma tarefa
+        /// </summary>
+        /// <param name="id">Id do comentário</param>
+        /// <param name="updateContextTaskViewModel">Dados do comentário</param>
+        /// <returns></returns>
+        /// <response code="202">Quando o comentário for alterado com sucesso</response>
+        /// <response code="404">Quando o comentário não for encontrado</response>
+        [HttpPut]
+        [Route("tasks/comments/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateTaskComentAsync([FromRoute] int id, [FromBody] UpdateTaskCommentViewModel updateContextTaskViewModel)
+        {
+            var taskCommentDTO = _mapper.Map<TaskCommentDTO>(updateContextTaskViewModel);
+            taskCommentDTO.Id = id;
+            var taskCommentUpdated = await _contextTaskService.UpdateTaskComentAsync(taskCommentDTO);
+
+            return taskCommentUpdated switch
+            {
+                SuccessResult<TaskCommentDTO> => Ok(taskCommentUpdated),
+                ErrorResult<TaskCommentDTO> => BadRequest(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
+        }
+
+        /// <summary>
         /// Desativar uma tarefa do projeto
         /// </summary>
         /// <param name="id">Id da tarefa</param>
@@ -281,8 +307,6 @@ namespace TM.API.Controllers
             };
         }
 
-        //TODO post/comments
-        //TODO put/comments
         //TODO get/reports
         //todo unit tests
     }

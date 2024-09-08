@@ -100,6 +100,14 @@ namespace TM.Services.Services
             if (project != null)
             {
                 project.ContextTasks = await _contextTaskRepository.GetAllAsync(projectId);
+
+                if (project.ContextTasks != null && project.ContextTasks.Any())
+                {
+                    foreach (var task in project.ContextTasks)
+                    {
+                        task.TaskComments = await _taskCommentRepository.GetAllAsync(task.Id);
+                    }
+                }
             }
 
             return project != null
@@ -139,6 +147,26 @@ namespace TM.Services.Services
             return contextTaskUpdated != null
                 ? new SuccessResult<ContextTaskDTO>(_mapper.Map<ContextTaskDTO>(contextTaskUpdated))
                 : new ErrorResult<ContextTaskDTO>("Error updating the task");
+        }
+
+        public async Task<Result<TaskCommentDTO>> UpdateTaskComentAsync(TaskCommentDTO taskCommentDTO)
+        {
+            TaskComment? taskCommentUpdated = null;
+
+            var taskComment = _mapper.Map<TaskComment>(taskCommentDTO);
+            var currentContextTask = await _taskCommentRepository.GetAsync(taskComment.Id);
+            if (currentContextTask != null)
+            {
+                taskComment.UpdateAt = DateTime.Now;
+                taskComment.ContextTaskId = currentContextTask.ContextTaskId;
+                taskComment.Enabled = currentContextTask.Enabled;
+
+                taskCommentUpdated = await _taskCommentRepository.UpdateAsync(taskComment);
+            }
+
+            return taskCommentUpdated != null
+                ? new SuccessResult<TaskCommentDTO>(_mapper.Map<TaskCommentDTO>(taskCommentUpdated))
+                : new ErrorResult<TaskCommentDTO>("Error updating comment");
         }
     }
 }
