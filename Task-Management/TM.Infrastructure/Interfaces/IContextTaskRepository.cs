@@ -8,6 +8,6 @@ namespace TM.Infrastructure.Interfaces
         Task<IEnumerable<ContextTask>?> GetAllAsync(int projectId);
         Task<ContextTask> CreateAsync(ContextTask contextTask);
         Task<bool> DisableAsync(int contextTaskId);
-        Task<ContextTask?> UpdateAsync(ContextTask contextTask);
+        Task<ContextTask> UpdateAsync(ContextTask contextTask);
     }
 }

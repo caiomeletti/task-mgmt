@@ -231,6 +231,35 @@ namespace TM.API.Controllers
         }
 
         /// <summary>
+        /// Criar um comentário em uma atividade
+        /// </summary>
+        /// <param name="id">Id da atividade</param>
+        /// <param name="createTaskCommentViewModel">Dados do comentário</param>
+        /// <returns></returns>
+        /// <response code="201">Quando o comentário for criado com sucesso</response>
+        /// <response code="404">Quando a atividade não for encontrada</response>
+        /// <response code="400">Quando ocorrer falha ao criar o comentário </response>
+        [HttpPost]
+        [Route("tasks/{id}/comments")]
+        [ProducesResponseType(typeof(ContextTaskDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateTaskCommentAsync([FromRoute] int id, [FromBody] CreateTaskCommentViewModel createTaskCommentViewModel)
+        {
+            var taskCommentDTO = _mapper.Map<TaskCommentDTO>(createTaskCommentViewModel);
+            taskCommentDTO.ContextTaskId = id;
+            var taskCommentCreated = await _contextTaskService.CreateTaskCommentAsync(taskCommentDTO);
+
+            return taskCommentCreated switch
+            {
+                SuccessResult<TaskCommentDTO> => Created(Request.Path, taskCommentCreated),
+                NotFoundResult<TaskCommentDTO> => NotFound(),
+                ErrorResult<TaskCommentDTO> => BadRequest(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
+        }
+
+        /// <summary>
         /// Desativar uma tarefa do projeto
         /// </summary>
         /// <param name="id">Id da tarefa</param>

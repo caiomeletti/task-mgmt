@@ -16,6 +16,7 @@ builder.Services.AddScoped<IDbServiceRepository, DbServiceRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IContextTaskRepository, ContextTaskRepository>();
 builder.Services.AddScoped<IHistoricalTaskRepository, HistoricalTaskRepository>();
+builder.Services.AddScoped<ITaskCommentRepository, TaskCommentRepository>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IContextTaskService, ContextTaskService>();
 
@@ -50,6 +51,8 @@ var config = new MapperConfiguration(cfg =>
     cfg.CreateMap<ContextTask, ContextTaskDTO>().ReverseMap();
     cfg.CreateMap<CreateContextTaskViewModel, ContextTaskDTO>();
     cfg.CreateMap<ContextTask, HistoricalTask>().ReverseMap();
+    cfg.CreateMap<CreateTaskCommentViewModel, TaskCommentDTO>();
+    cfg.CreateMap<TaskComment, TaskCommentDTO>().ReverseMap();
 });
 IMapper mapper = config.CreateMapper();
 #endregion

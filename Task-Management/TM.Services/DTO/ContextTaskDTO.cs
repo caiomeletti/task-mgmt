@@ -13,5 +13,7 @@ namespace TM.Services.DTO
         public int ProjectId { get; set; }
         public DateTime UpdateAt { get; set; }
         public int UserId { get; set; }
+
+        public virtual IEnumerable<TaskCommentDTO>? TaskComments { get; set; }
     }
 }

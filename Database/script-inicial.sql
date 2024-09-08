@@ -30,10 +30,11 @@ CREATE TABLE IF NOT EXISTS `context_task` (
   `ProjectId` int NOT NULL,
   `UpdateAt` datetime NOT NULL DEFAULT (now()),
   `UserId` int NOT NULL,
+  `Enabled` bit(1) NOT NULL DEFAULT (1),
   PRIMARY KEY (`Id`),
   KEY `FK_context_task_project` (`ProjectId`),
   CONSTRAINT `FK_context_task_project` FOREIGN KEY (`ProjectId`) REFERENCES `project` (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_tr_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_tr_0900_ai_ci;
 
 -- Exportação de dados foi desmarcado.
 
@@ -51,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `historical_task` (
   PRIMARY KEY (`Id`) USING BTREE,
   KEY `FK__project` (`ContextTaskId`) USING BTREE,
   CONSTRAINT `FK_historical_task_context_task` FOREIGN KEY (`ContextTaskId`) REFERENCES `context_task` (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_tr_0900_ai_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_tr_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- Exportação de dados foi desmarcado.
 
@@ -61,14 +62,16 @@ CREATE TABLE IF NOT EXISTS `project` (
   `Title` varchar(50) COLLATE utf8mb4_tr_0900_ai_ci NOT NULL,
   `Description` varchar(100) COLLATE utf8mb4_tr_0900_ai_ci NOT NULL,
   `UpdateAt` datetime NOT NULL DEFAULT (now()),
+  `UserId` int NOT NULL,
+  `Enabled` bit(1) NOT NULL DEFAULT (1),
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_tr_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_tr_0900_ai_ci;
 
 -- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela task_mgmt.task_comment
 CREATE TABLE IF NOT EXISTS `task_comment` (
-  `Id` int NOT NULL,
+  `Id` int NOT NULL AUTO_INCREMENT,
   `ContextTaskId` int DEFAULT NULL,
   `Comment` text COLLATE utf8mb4_tr_0900_ai_ci,
   `UserId` int NOT NULL,

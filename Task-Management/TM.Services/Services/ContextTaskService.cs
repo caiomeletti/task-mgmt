@@ -14,6 +14,7 @@ namespace TM.Services.Services
         private readonly IMapper _mapper;
         private readonly IProjectRepository _projectRepository;
         private readonly IContextTaskRepository _contextTaskRepository;
+        private readonly ITaskCommentRepository _taskCommentRepository;
         private readonly IHistoricalTaskRepository _historicalTaskRepository;
 
         public ContextTaskService(
@@ -21,6 +22,7 @@ namespace TM.Services.Services
             IMapper mapper,
             IProjectRepository projectRepository,
             IContextTaskRepository contextTaskRepository,
+            ITaskCommentRepository taskCommentRepository,
             IHistoricalTaskRepository historicalTaskRepository
             )
         {
@@ -28,6 +30,7 @@ namespace TM.Services.Services
             _mapper = mapper;
             _contextTaskRepository = contextTaskRepository;
             _projectRepository = projectRepository;
+            _taskCommentRepository = taskCommentRepository;
             _historicalTaskRepository = historicalTaskRepository;
         }
 
@@ -59,6 +62,25 @@ namespace TM.Services.Services
                 {
                     ret = new ForbiddenResult<ContextTaskDTO>("Maximum number of tasks has been reached");
                 }
+            }
+
+            return ret;
+        }
+
+        public async Task<Result<TaskCommentDTO>> CreateTaskCommentAsync(TaskCommentDTO taskCommentDTO)
+        {
+            Result<TaskCommentDTO> ret = new NotFoundResult<TaskCommentDTO>("Task not found");
+
+            var taskComment = _mapper.Map<TaskComment>(taskCommentDTO);
+            taskComment.UpdateAt = DateTime.Now;
+            taskComment.Enabled = true;
+            var contextTask = await _contextTaskRepository.GetAsync(taskComment.ContextTaskId);
+            if (contextTask != null)
+            {
+                TaskComment? taskCommentCreated = await _taskCommentRepository.CreateAsync(taskComment);
+                ret = taskCommentCreated != null
+                    ? new SuccessResult<TaskCommentDTO>(_mapper.Map<TaskCommentDTO>(taskCommentCreated))
+                    : new ErrorResult<TaskCommentDTO>("Error creating the comment");
             }
 
             return ret;

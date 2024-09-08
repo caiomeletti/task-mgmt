@@ -127,7 +127,7 @@ namespace TM.Infrastructure.Repositories
             return rowsAffected > 0;
         }
 
-        public async Task<ContextTask?> UpdateAsync(ContextTask contextTask)
+        public async Task<ContextTask> UpdateAsync(ContextTask contextTask)
         {
             string sql =
                @"UPDATE context_task SET " +
