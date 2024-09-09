@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Configuration;
+using TM.Core.Enum;
 using TM.Core.Structs;
 using TM.Domain.Entities;
 using TM.Infrastructure.Interfaces;
@@ -126,6 +127,9 @@ namespace TM.Services.Services
                 contextTask.UpdateAt = currentContextTask.UpdateAt;
                 contextTask.ProjectId = currentContextTask.ProjectId;
 
+                if (PriorityMustBeEqual(contextTask.Priority, currentContextTask.Priority))
+                    return new ErrorResult<ContextTaskDTO>("It is not allowed to change the priority of a task after it has been created");
+
                 if (!currentContextTask.Equals(contextTask))
                 {
                     contextTask.UpdateAt = DateTime.Now;
@@ -147,6 +151,11 @@ namespace TM.Services.Services
             return contextTaskUpdated != null
                 ? new SuccessResult<ContextTaskDTO>(_mapper.Map<ContextTaskDTO>(contextTaskUpdated))
                 : new ErrorResult<ContextTaskDTO>("Error updating the task");
+        }
+
+        private bool PriorityMustBeEqual(Priority changePriority, Priority currentPriority)
+        {
+            return changePriority == currentPriority;
         }
 
         public async Task<Result<TaskCommentDTO>> UpdateTaskComentAsync(TaskCommentDTO taskCommentDTO)
