@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using TM.Core.Enum;
 using TM.Core.Structs;
 using TM.Domain.Entities;
+using TM.Domain.Utilities.QueryParams;
 using TM.Infrastructure.Interfaces;
 using TM.Services.DTO;
 using TM.Services.Interfaces;
@@ -147,6 +148,24 @@ namespace TM.Services.Services
                 : new NotFoundResult<ProjectDTO>("Task not found");
         }
 
+        public async Task<Result<IEnumerable<ContextTaskAggregateDTO>>> GetContextTaskReportAsync(QueryParamsContextTaskReport query, string requestingUser)
+        {
+            RequestUser requestUser = new(requestingUser);
+            if (!requestUser.IsAdmin())
+                return new ErrorResult<IEnumerable<ContextTaskAggregateDTO>>("Requesting user does not have access credentials");
+
+            var contextTaskAggregates = await _contextTaskRepository.GetCountAsync(query);
+            if (contextTaskAggregates != null)
+            {
+                var contextTaskAggregatesDTO = _mapper.Map<IEnumerable<ContextTaskAggregateDTO>>(contextTaskAggregates);
+                return new SuccessResult<IEnumerable<ContextTaskAggregateDTO>>(contextTaskAggregatesDTO);
+            }
+            else
+            {
+                return new NotFoundResult<IEnumerable<ContextTaskAggregateDTO>>("Task not available");
+            }
+        }
+
         public async Task<Result<ContextTaskDTO>> UpdateContextTaskAsync(ContextTaskDTO contextTaskDTO)
         {
             ContextTask? contextTaskUpdated = null;
@@ -184,7 +203,7 @@ namespace TM.Services.Services
                 : new ErrorResult<ContextTaskDTO>("Error updating the task");
         }
 
-        private bool PriorityMustBeEqual(Priority changePriority, Priority currentPriority)
+        private static bool PriorityMustBeEqual(Priority changePriority, Priority currentPriority)
         {
             return changePriority == currentPriority;
         }
@@ -208,5 +227,6 @@ namespace TM.Services.Services
                 ? new SuccessResult<TaskCommentDTO>(_mapper.Map<TaskCommentDTO>(taskCommentUpdated))
                 : new ErrorResult<TaskCommentDTO>("Error updating comment");
         }
+
     }
 }

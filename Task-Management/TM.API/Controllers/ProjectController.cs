@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using TM.API.Utilities;
 using TM.API.ViewModels.ContextTask;
+using TM.API.ViewModels.Filters;
 using TM.API.ViewModels.Project;
 using TM.API.ViewModels.TaskComment;
 using TM.Core.Structs;
@@ -309,7 +312,30 @@ namespace TM.API.Controllers
             };
         }
 
-        //TODO get/reports
-        //todo unit tests
+        /// <summary>
+        /// Exibir a quantidade de atividades agrupado por projetos e usuário, filtrando por status e última data de atualização
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="requestingUser">Usário requisitante</param>
+        /// <returns></returns>
+        /// <response code="200">Quando existir tarefas</response>
+        /// <response code="404">Quando não existir tarefas</response>
+        /// <response code="400">Quando o usuário requisitante não possuir credenciais para acesso</response>
+        [HttpGet]
+        [Route("tasks/reports")]
+        [ProducesResponseType(typeof(IEnumerable<ContextTaskAggregateDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetContextTaskReportAsync([FromQuery] FilterContextTaskReportModel filter, [Required][FromQuery] string requestingUser)
+        {
+            var query = CreateQueryParams.ForContextTaskReport(filter);
+            var result = await _contextTaskService.GetContextTaskReportAsync(query, requestingUser);
+            return result switch
+            {
+                SuccessResult<IEnumerable<ContextTaskAggregateDTO>> => Ok(result),
+                NotFoundResult<IEnumerable<ContextTaskAggregateDTO>> => NotFound(),
+                ErrorResult<IEnumerable<ContextTaskAggregateDTO>> => BadRequest(),
+                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+            };
+        }
     }
 }

@@ -27,6 +27,7 @@ namespace TM.API.Utilities
                 cfg.CreateMap<ContextTask, HistoricalTask>().ReverseMap();
                 cfg.CreateMap<CreateTaskCommentViewModel, TaskCommentDTO>();
                 cfg.CreateMap<TaskComment, TaskCommentDTO>().ReverseMap();
+                cfg.CreateMap<ContextTaskAggregate, ContextTaskAggregateDTO>();
             });
             IMapper mapper = config.CreateMapper();
             return mapper;

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using System.Text;
 using TM.Domain.Entities;
+using TM.Domain.Utilities.QueryParams;
 using TM.Infrastructure.Interfaces;
 
 namespace TM.Infrastructure.Repositories
@@ -158,6 +159,41 @@ namespace TM.Infrastructure.Repositories
             }
 
             return contextTask;
+        }
+
+        public async Task<IEnumerable<ContextTaskAggregate>?> GetCountAsync(QueryParamsContextTaskReport query)
+        {
+            IEnumerable<ContextTaskAggregate>? ret = null;
+            try
+            {
+                var _selectAggregate = @"SELECT " +
+                    "	t.ProjectId " + 
+                    "  ,p.Title AS 'ProjectTitle' " +
+                    "  ,t.UserId " + 
+                    "  ,t.Status " + 
+                    "  ,COUNT(*) AS 'CountOfContextTask' " +
+                    "FROM project p " +
+                    "inner join context_task t ON t.ProjectId = p.Id " +
+                    "WHERE p.Enabled = 1 " +
+                    "AND t.Enabled = 1 " +
+                    "AND t.Status = @Status " +
+                    "AND t.UpdateAt >= @UpdateAt " +
+                    "GROUP BY t.ProjectId, p.Title, t.UserId, t.Status " +
+                    "ORDER BY t.ProjectId, t.UserId, t.Status";
+                var sql = new StringBuilder(_selectAggregate);
+
+                var param = new DynamicParameters();
+                param.Add("Status", (int)query.Status);
+                param.Add("UpdateAt", query.StartDate);
+
+                ret = await _dbService.QueryAsync<ContextTaskAggregate>(sql.ToString(), param);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message} {ex.StackTrace} {ex.InnerException}");
+            }
+
+            return ret;
         }
     }
 }
