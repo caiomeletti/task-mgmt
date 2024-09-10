@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using TM.API.ViewModels;
+using TM.API.ViewModels.ContextTask;
+using TM.API.ViewModels.Project;
+using TM.API.ViewModels.TaskComment;
 using TM.Core.Structs;
 using TM.Services.DTO;
 using TM.Services.Interfaces;

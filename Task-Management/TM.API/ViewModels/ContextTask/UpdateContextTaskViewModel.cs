@@ -1,4 +1,4 @@
-﻿namespace TM.API.ViewModels
+﻿namespace TM.API.ViewModels.ContextTask
 {
     /// <summary>
     /// 

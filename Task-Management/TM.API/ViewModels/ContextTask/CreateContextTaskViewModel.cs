@@ -1,6 +1,6 @@
 ﻿using TM.Core.Enum;
 
-namespace TM.API.ViewModels
+namespace TM.API.ViewModels.ContextTask
 {
     /// <summary>
     /// 

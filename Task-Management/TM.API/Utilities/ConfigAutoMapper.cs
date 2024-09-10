@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
-using TM.API.ViewModels;
+using TM.API.ViewModels.ContextTask;
+using TM.API.ViewModels.Project;
+using TM.API.ViewModels.TaskComment;
 using TM.Domain.Entities;
 using TM.Services.DTO;
 
