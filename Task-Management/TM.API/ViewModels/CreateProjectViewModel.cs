@@ -19,5 +19,14 @@
         /// 
         /// </summary>
         public int UserId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public CreateProjectViewModel()
+        {
+            Title = string.Empty;
+            Description = string.Empty;
+        }
     }
 }

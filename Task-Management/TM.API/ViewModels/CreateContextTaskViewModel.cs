@@ -31,5 +31,15 @@ namespace TM.API.ViewModels
         /// 
         /// </summary>
         public int UserId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public CreateContextTaskViewModel()
+        {
+            Title = string.Empty;
+            Description = string.Empty;
+            DueDate = DateTime.MinValue;
+        }
     }
 }
