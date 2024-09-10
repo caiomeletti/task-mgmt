@@ -45,27 +45,58 @@ namespace TM.Services.Services
             var contextTask = _mapper.Map<ContextTask>(contextTaskDTO);
             contextTask.UpdateAt = DateTime.Now;
 
-            var project = await _projectRepository.GetAsync(contextTask.ProjectId);
-            if (project != null)
+            if (Validate(contextTask, out string message))
             {
-                var contextTasks = await _contextTaskRepository.GetAllAsync(contextTask.ProjectId);
-                var currentNumberTasks = contextTasks != null
-                    ? contextTasks.Count()
-                    : 0;
-                if (currentNumberTasks < maxNumberTasks)
+                var project = await _projectRepository.GetAsync(contextTask.ProjectId);
+                if (project != null)
                 {
-                    ContextTask? contextTaskCreated = await _contextTaskRepository.CreateAsync(contextTask);
-                    ret = contextTaskCreated != null
-                        ? new SuccessResult<ContextTaskDTO>(_mapper.Map<ContextTaskDTO>(contextTaskCreated))
-                        : new ErrorResult<ContextTaskDTO>("Error creating the task");
+                    var contextTasks = await _contextTaskRepository.GetAllAsync(contextTask.ProjectId);
+                    var currentNumberTasks = contextTasks != null
+                        ? contextTasks.Count()
+                        : 0;
+                    if (currentNumberTasks < maxNumberTasks)
+                    {
+                        ContextTask? contextTaskCreated = await _contextTaskRepository.CreateAsync(contextTask);
+                        ret = contextTaskCreated != null
+                            ? new SuccessResult<ContextTaskDTO>(_mapper.Map<ContextTaskDTO>(contextTaskCreated))
+                            : new ErrorResult<ContextTaskDTO>("Error creating the task");
+                    }
+                    else
+                    {
+                        ret = new ForbiddenResult<ContextTaskDTO>("Maximum number of tasks has been reached");
+                    }
                 }
                 else
                 {
-                    ret = new ForbiddenResult<ContextTaskDTO>("Maximum number of tasks has been reached");
+                    ret = new NotFoundResult<ContextTaskDTO>("Project not found");
                 }
+            }
+            else
+            {
+                ret = new ErrorResult<ContextTaskDTO>(message);
             }
 
             return ret;
+        }
+
+        private static bool Validate(ContextTask contextTask, out string message)
+        {
+            message = string.Empty;
+
+            if (string.IsNullOrEmpty(contextTask.Title))
+            {
+                message = "The title of the task cannot be empty";
+            }
+            else if (contextTask.DueDate.CompareTo(DateTime.Today) <= 0)
+            {
+                message = "Due Date must be greater than the current date";
+            }
+            else if (contextTask.ProjectId <= 0)
+            {
+                message = "The ProjectId of the task cannot be empty";
+            }
+
+            return string.IsNullOrEmpty(message);
         }
 
         public async Task<Result<TaskCommentDTO>> CreateTaskCommentAsync(TaskCommentDTO taskCommentDTO)
@@ -127,7 +158,7 @@ namespace TM.Services.Services
                 contextTask.UpdateAt = currentContextTask.UpdateAt;
                 contextTask.ProjectId = currentContextTask.ProjectId;
 
-                if (PriorityMustBeEqual(contextTask.Priority, currentContextTask.Priority))
+                if (!PriorityMustBeEqual(contextTask.Priority, currentContextTask.Priority))
                     return new ErrorResult<ContextTaskDTO>("It is not allowed to change the priority of a task after it has been created");
 
                 if (!currentContextTask.Equals(contextTask))

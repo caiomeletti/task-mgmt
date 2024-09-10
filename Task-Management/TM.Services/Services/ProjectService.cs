@@ -25,16 +25,24 @@ namespace TM.Services.Services
             _projectRepository = projectRepository;
         }
 
-
         public async Task<Result<ProjectDTO>> CreateProjectAsync(ProjectDTO projectDTO)
         {
             var project = _mapper.Map<Project>(projectDTO);
             project.UpdateAt = DateTime.Now;
-            var projectCreated = await _projectRepository.CreateAsync(project);
+
+            Project? projectCreated = null;
+            if (Validate(project))
+                projectCreated = await _projectRepository.CreateAsync(project);
 
             return projectCreated != null
                 ? new SuccessResult<ProjectDTO>(_mapper.Map<ProjectDTO>(projectCreated))
                 : new ErrorResult<ProjectDTO>("Error creating the project");
+        }
+
+        private static bool Validate(Project project)
+        {
+            bool valid = !string.IsNullOrEmpty(project.Title);
+            return valid;
         }
 
         public async Task<Result<IEnumerable<ProjectDTO>>> GetProjectAsync(bool includeTasks)
@@ -60,7 +68,7 @@ namespace TM.Services.Services
             return await GetProjectAsync(-1, userId, includeTasks);
         }
 
-        public async Task<Result<IEnumerable<ProjectDTO>>> GetProjectAsync(int projectId, int userId, bool includeTasks)
+        private async Task<Result<IEnumerable<ProjectDTO>>> GetProjectAsync(int projectId, int userId, bool includeTasks)
         {
             var projects = await _projectRepository.GetAsync(projectId, userId);
             if (includeTasks && projects != null && projects.Any())
@@ -86,7 +94,7 @@ namespace TM.Services.Services
                 var contextTasks = await _contextTaskRepository.GetAllAsync(projectId);
                 var pendingTasks = contextTasks != null && contextTasks.Any(x => x.Status == CurrentTaskStatus.Pending);
                 if (pendingTasks)
-                    return new ErrorResult<bool>("Project has pending tasks");
+                    return new ErrorResult<bool>("Project has pending tasks. Remove or complete tasks before disabling the project.");
 
                 var wasDisabled = await _projectRepository.DisableAsync(projectId);
 
