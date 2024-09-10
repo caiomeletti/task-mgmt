@@ -7,7 +7,7 @@ namespace TM.Infrastructure.Repositories
     public class HistoricalTaskRepository : BaseRepository, IHistoricalTaskRepository
     {
         public HistoricalTaskRepository(
-           IDbServiceRepository dbService) : base(dbService)
+           IDbHelper dbService) : base(dbService)
         {
         }
 

@@ -2,10 +2,10 @@
 {
     public class BaseRepository
     {
-        protected readonly IDbServiceRepository _dbService;
+        protected readonly IDbHelper _dbService;
 
         protected BaseRepository(
-            IDbServiceRepository dbService)
+            IDbHelper dbService)
         {
             _dbService = dbService;
         }

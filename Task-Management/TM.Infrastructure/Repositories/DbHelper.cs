@@ -5,14 +5,11 @@ using TM.Infrastructure.Utilities;
 
 namespace TM.Infrastructure.Repositories
 {
-    public class DbServiceRepository : IDbServiceRepository
+    public class DbHelper : IDbHelper
     {
         private readonly IConfiguration _configuration;
 
-        public DbServiceRepository(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
+        public DbHelper(IConfiguration configuration) => _configuration = configuration;
 
         public async Task<T> QueryFirstAsync<T>(string query, object parameters)
         {

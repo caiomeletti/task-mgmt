@@ -10,7 +10,7 @@ namespace TM.Infrastructure.Repositories
         private readonly string _baseSelect;
 
         public ProjectRepository(
-            IDbServiceRepository dbService) : base(dbService)
+            IDbHelper dbService) : base(dbService)
         {
             _baseSelect =
                 @"SELECT " +

@@ -2,18 +2,15 @@ using AutoMapper;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using TM.API.Utilities;
-using TM.API.ViewModels;
-using TM.Domain.Entities;
 using TM.Infrastructure.Interfaces;
 using TM.Infrastructure.Repositories;
-using TM.Services.DTO;
 using TM.Services.Interfaces;
 using TM.Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddScoped<IDbServiceRepository, DbServiceRepository>();
+builder.Services.AddScoped<IDbHelper, DbHelper>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IContextTaskRepository, ContextTaskRepository>();
 builder.Services.AddScoped<IHistoricalTaskRepository, HistoricalTaskRepository>();
