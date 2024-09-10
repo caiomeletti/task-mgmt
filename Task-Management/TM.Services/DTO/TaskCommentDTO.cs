@@ -8,5 +8,12 @@
         public int UserId { get; set; }
         public DateTime UpdateAt { get; set; }
         public bool Enabled { get; set; }
+
+        public TaskCommentDTO()
+        {
+            Comment = string.Empty;
+            UpdateAt = DateTime.MinValue;
+            Enabled = true;
+        }
     }
 }

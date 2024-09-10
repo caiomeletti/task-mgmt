@@ -15,5 +15,13 @@ namespace TM.Services.DTO
         public int UserId { get; set; }
 
         public virtual IEnumerable<TaskCommentDTO>? TaskComments { get; set; }
+
+        public ContextTaskDTO()
+        {
+            Title = string.Empty; 
+            Description=string.Empty; 
+            DueDate = DateTime.MinValue;
+            UpdateAt = DateTime.MinValue;
+        }
     }
 }
