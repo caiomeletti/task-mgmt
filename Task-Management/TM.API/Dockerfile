@@ -9,6 +9,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["TM.API/TM.API.csproj", "TM.API/"]
+COPY ["TM.Infrastructure/TM.Infrastructure.csproj", "TM.Infrastructure/"]
+COPY ["TM.Domain/TM.Domain.csproj", "TM.Domain/"]
+COPY ["TM.Core/TM.Core.csproj", "TM.Core/"]
+COPY ["TM.Services/TM.Services.csproj", "TM.Services/"]
 RUN dotnet restore "./TM.API/TM.API.csproj"
 COPY . .
 WORKDIR "/src/TM.API"
