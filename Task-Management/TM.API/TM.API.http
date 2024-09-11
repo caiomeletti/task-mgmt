@@ -1,6 +1,92 @@
-@TM.API_HostAddress = http://localhost:5296
+﻿@TM.API_HostAddress = http://localhost:24001
+##5296
 
-GET {{TM.API_HostAddress}}/api/v1/projects/
+@TM.ProjectId = 1
+@TM.TaskId = 1
+@TM.UserId = 10
+
+@TM.Status = Completed
+@TM.StartDate = 2024-08-01
+@TM.RequestingUser = caio
+
+GET {{TM.API_HostAddress}}/api/v1/projects?includeTasks=false
 Accept: application/json
+###
 
+POST {{TM.API_HostAddress}}/api/v1/projects
+Content-Type: application/json
+
+{
+  "title": "A canção de gelo e fogo",
+  "description": "Escrito por George R.R. Martin",
+  "userId": 10
+}
+###
+
+GET {{TM.API_HostAddress}}/api/v1/projects/{{TM.ProjectId}}?includeTasks=true
+Accept: application/json
+###
+
+DELETE {{TM.API_HostAddress}}/api/v1/projects/7
+Accept: application/json
+###
+
+GET {{TM.API_HostAddress}}/api/v1/projects/users/{{TM.UserId}}
+Accept: application/json
+###
+
+GET {{TM.API_HostAddress}}/api/v1/projects/{{TM.ProjectId}}/tasks
+Accept: application/json
+###
+
+POST {{TM.API_HostAddress}}/api/v1/projects/{{TM.ProjectId}}/tasks
+Content-Type: application/json
+
+{
+  "title": "A guerra dos tronos",
+  "description": "Livro um",
+  "dueDate": "2034-09-10",
+  "priority": "Low",
+  "status": "Pending",
+  "userId": 10
+}
+###
+
+PUT {{TM.API_HostAddress}}/api/v1/projects/tasks/{{TM.TaskId}}
+Content-Type: application/json
+
+{
+  "title": "A guerra dos tronos",
+  "description": "Livro um",
+  "dueDate": "2034-10-01",
+  "priority": "High",
+  "status": "InProgress",
+  "userId": 10
+}
+###
+
+DELETE {{TM.API_HostAddress}}/api/v1/projects/tasks/11
+Accept: application/json
+###
+
+POST {{TM.API_HostAddress}}/api/v1/projects/tasks/{{TM.TaskId}}/comments
+Content-Type: application/json
+
+{
+  "comment": "meu comentário de hoje {{$datetime iso8601}}",
+  "userId": 10
+}
+###
+
+PUT {{TM.API_HostAddress}}/api/v1/projects/tasks/comments/3
+Content-Type: application/json
+
+{
+  "comment": "correção do 🐛",
+  "userId": 10
+}
+###
+
+GET {{TM.API_HostAddress}}/api/v1/projects/tasks/reports?Status={{TM.Status}}&StartDate={{TM.StartDate}}&requestingUser={{TM.RequestingUser}}' 
+Accept: application/json
 ###
