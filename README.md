@@ -20,61 +20,194 @@ Os componentes dela são:
 
 ## 3. Repositório
 
-Foi escolhido o MySQL como sistema de gerenciamento de banco de dados devido a robustez e facilidade de instalação.
+Foi escolhido o MySQL como sistema de gerenciamento de banco de dados relacional devido a robustez e por ser amplamente utilizado.
 
 ## 4. Pré-requisitos
 ### Depuração
 - .NET 
-- Visual Studio 
-- MySQL
+- [Visual Studio](https://visualstudio.microsoft.com/pt-br/vs/community/) 
+- [MySQL](https://dev.mysql.com/downloads/mysql/)
 
 ### Execução
-- Docker
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-## 5. Criando a base de dados
+## 5. Construção do ambiente
+
+Existe mais de um cenário possível para construção do ambiente de desenvolvimento / depuração, abaixo estão descritas algumas possibilidades. Após escolher o cenário que desejar, vá diretamente a respectiva seção para seguir as etapas.
+
+### Ambiente implantado em Docker
+Utilizado para visualização da entrega final, serve como ambiente de homologação, mas pode ser usado durante o desenvolvimento.
+
+Neste cenário teremos dois containers Docker, um para o repositório e outro para a aplicação, sendo que a aplicação irá se conectar na base de dados existente no container próprio.
+
+![Ambiente em Docker](images/tm-ambiente1.png)
+
+### Ambiente convencional de desenvolvimento
+Como o nome já diz: utilizado para o desenvolvimento, mas permite que o sistema seja usado para testes e validações.
+
+Neste cenário, a base de dados é gerenciada pelo MySQL que está instalado no Host, da mesma forma que a aplicação será gerenciado pelo .NET, sendo possível depurar pelo Visual Studio.
+
+![Ambiente convencional](images/tm-ambiente2.png)
+
+### Ambiente de desenvolvimento usando repositório no Docker
+É um ambiente de desenvolvimento, porém os binários são instalados em um container Docker (podendo ainda ser depurado).
+
+Neste cenário, a base de dados estará em um container Docker também que será acessado pela API que foi instalada no container que foi gerenciado pelo Visual Studio.
+
+![Ambiente desenvolvimento com repositório Docker](images/tm-ambiente3.png)
+
+
+## 5.1 Ambiente implantado em Docker
+
+### 5.1.1 Criar imagem MySQL
+Abra o 'Prompt de comando' na pasta base do repositório e digite o comando abaixo:
+
+	docker build -t mysql-image -f Database\Dockerfile .
+
+Será criada uma imagem do MySQL com a senha do usuário **root** pré-definida como _mlt2024!_
+
+
+### 5.1.2 Criar imagem dotnet contendo a API
+Altere a pasta atual para "Task-Management" e digite o comando para criar a nova imagem:
+
+	CD Task-Management
+	docker build -t task_mgmt-image -f Dockerfile .
+
+Uma nova imagem será criada contendo o build da API.
+
+
+### 5.1.3 Criar o container usando a imagem MySQL
+
+Se desejar que a base de dados mantenha o estado dos dados somente enquanto o container estiver sendo executado (perdendo os dados quando o mesmo for parado):
+
+	docker run -d --rm --name mysql-container mysql-image
+	
+	
+Caso tenha interesse em conservar os dados mesmo após o container ser parado, acrescente o caminho para criar o "volume".
+A linha de comando deve variar de acordo com o seu 'host' e maneira de executar o comando do Docker, porém em todos os casos o diretório atual deverá ser a pasta base do repositório para que os arquivos do volume sejam criados em "Database\data":
+
+_**[Windows]** Prompt de comando:_
+
+	CD ..
+	docker run -d -v %CD%\Database\data:/var/lib/mysql --rm --name mysql-container mysql-image
+	
+_**[Windows]** Powershell_
+
+	CD ..
+	docker run -d -v ${PWD}\Database\data:/var/lib/mysql --rm --name mysql-container mysql-image
+
+_**[Linux]** Bash_
+
+	cd ..
+	docker run -d -v $(pwd)\Database\data:/var/lib/mysql --rm --name mysql-container mysql-image
+
+
+### 5.1.4 Criando a base de dados no container do MySQL
+
+	docker exec -i mysql-container mysql -uroot -pmlt2024! < Database\create-table.sql
+
+Caso queira que a base já contenha dados iniciais (massa de dados de teste):
+
+	docker exec -i mysql-container mysql -uroot -pmlt2024! < Database\dados-iniciais.sql
+
+
+### 5.1.5 Criar o container usando a imagem dotnet + API
+
+	docker run -d -p 24001:8080 --link mysql-container --rm --name taskmgmt-container task_mgmt-image
+	
+- A porta 8080 que está sendo utilizada pela API no container será mapeada para a porta 24001 para acesso no host;
+- O parâmetro "link" serve para informar ao container (que está sendo criado) o nome do container que contém o MySQL que está sendo utilizado na string de conexão da API.
+
+
+### 5.1.6 Acessar a interface do Swagger
+
+Após subir os dois containers a API estará disponível através do hyperlink:
+
+[http://localhost:24001/swagger/index.html](http://localhost:24001/swagger/index.html)
+
+🆒 Pronto! Agora é só utilizar cada endpoint de acordo com a sua necessidade.
+
+💡 Os demais cenários abaixo só devem servir para usuários que desejam criar ambientes de desenvolvimento!
+
+
+## 5.2 Ambiente convencional de desenvolvimento
+
+### 5.2.1 Criando a base de dados
 
 Na pasta base do repositório existe uma pasta "Database", dentro dela está disponível o script para criação da base de dados e suas tabelas:
- - script-inicial.sql
+ 
+	create-table.sql
 
-Compile o script através do IDE de sua preferência (Workbench, HeidiSQL, etc) acessando o uma sessão de MySQL. 
+Compile o script através do IDE de sua preferência (Workbench, HeidiSQL, etc) acessando o uma sessão de MySQL ou ainda por linha de comando, executando `mysql` passando os parâmetros necessários (maiores detalhes de como fazer isso neste [tutorial](https://www.tabnews.com.br/Normal/tutorial-como-executar-o-mysql-8-0-no-prompt-de-comando-cmd)).
 
 Após a compilação será criada base "task_mgmt" e as respectivas tabelas.
 
 ![Entidades](Database/Entities-draft.png)
 
-## 6. Atualizando a string de conexão
 
-Abra o arquivo "appsettings.json" ($\Task-Management\TM.API) e altere o nome do usuário e a respectiva senha com permissão para acesso a base que foi criada no passo anterior.
+## 5.2.2 Atualizando a string de conexão
 
-- Uid=\<user>
-- Pwd=\<password>
+- Abra o arquivo "appsettings.json" ($\Task-Management\TM.API)
+- Remova o comentário da string de conexão `ambiente 2`
+- Remova ou comente qualquer outra string de conexão
+- Altere o nome do usuário e a respectiva senha com permissão para acesso a base que foi criada no passo anterior.
+
+	- Uid=\<user>
+	- Pwd=\<password>
 
 
-## 7. Depurando através do  Visual Studio
+## 5.2.3 Depurando através do  Visual Studio
+
+Para atender a esse tópico será necessário ter instalado uma versão do [Visual Studio](https://visualstudio.microsoft.com/pt-br/vs/community/) (eu utilizei a 'Community 2022').
+
+- Abra o arquivo de solução (Task-Management.sln) na pasta "$\Task-Management"
+- Certifique-se que o perfil de depuração seja 'http'
+![Perfil de depuração](images/perfil-depuracao.png)
+- Em seguida inicie a depuração pressionando \<F5>
+
+O Visual Studio irá abrir a interface do Swagger no browser que estará conectada diretamente a instância da base de dados no MySQL.
+
+
+
+
+## 5.3 Ambiente de desenvolvimento usando repositório no Docker
+
+Este cenário é um híbrido dos dois cenários anteriores e por isso algumas etapas podem ser reaproveitadas!
+
+### 5.3.1 Criar imagem e container MySQL
+
+Repita os mesmos processos da etapas
+- 5.1.1 Criar imagem MySQL
+- 5.1.3 Criar o container usando a imagem MySQL
+- 5.1.4 Criando a base de dados no container do MySQL
+
+Após cumpridas essas etapas a base de dados estará em um container Docker.
+
+## 5.3.2 Atualizando a string de conexão
+
+Digite o comando abaixo e procure na seção `Networks` o `IPAddress` do container MySQL:
+
+	docker inspect mysql-container 
+
+
+- Abra o arquivo "appsettings.json" ($\Task-Management\TM.API)
+- Remova o comentário da string de conexão `ambiente 3`
+- Atualize o endereço IP do Server com o mesmo valor que foi encontrado no 'inspect'
+- Remova ou comente qualquer outra string de conexão
+
+
+## 5.3.3 Visual Studio gerenciando o processo de deploy no Docker
 
 Para atender a esse tópico será necessário ter instalado uma versão do [Visual Studio](https://visualstudio.microsoft.com/pt-br/vs/community/) (eu utilizei a 'Community 2022') e o [Docker Desktop](https://www.docker.com/products/docker-desktop/) deve estar em execução.
 
 - Abra o arquivo de solução (Task-Management.sln) na pasta "$\Task-Management"
-- Altere o perfil de depuração para 'Container(Dockerfile)'
+- Altere o perfil de depuração para 'Container (Dockerfile)'
 ![Perfil de depuração](images/perfil-depuracao.png)
 - Em seguida inicie a depuração pressionando \<F5>
 
 O Visual Studio irá gerar uma imagem de nome **tmapi** e fará o deploy do container **TM.API**, ao final o seu browser padrão será aberto carregando a interface do Swagger da API, permitindo que os endpoints sejam utilizados.
 
-## 8. Criação da imagem Docker
-Estando na pasta base da solução ($\Task-Management) execute a linha de comando:
-
-	docker build --pull --rm -f "TM.API\Dockerfile" -t tmapi:dev "." 
-
-Para criar (e executar) o container:
-
-	docker run -d -p 32768:8080 --name TM.API tmapi:dev
-
-## 9. Acessando a API 
-
-O container irá expor na porta 32768 do host o conteúdo da porta 8080 da imagem, portanto a interface do Swagger estará disponível em:
-
-http://localhost:32768/swagger/index.html
+	A diferença deste cenário para o primeiro é que o gerenciamento da imagem e container Docker ficam a cargo do Visual Studio, porém a string de conexão estará apontando para o container do MySQL que foi gerado na 5.3.1.
 
 
 
