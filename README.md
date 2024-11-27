@@ -1,5 +1,11 @@
 # Sistema de gerenciamento de tarefas
 
+![GitHub repo size](https://img.shields.io/github/repo-size/caiomeletti/task-mgmt)
+![GitHub language count](https://img.shields.io/github/languages/count/caiomeletti/task-mgmt)
+![GitHub forks](https://img.shields.io/github/forks/caiomeletti/task-mgmt)
+![Bitbucket open issues](https://img.shields.io/bitbucket/issues/caiomeletti/task-mgmt)
+![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/caiomeletti/task-mgmt)
+
 ## 1. Objetivo
 Disponibilizar API que permite aos usuários organizar e monitorar suas tarefas diárias, bem como colaborar com colegas de equipe.
 
